@@ -20,8 +20,8 @@
         </el-form-item>
         <!-- 按钮 -->
         <el-form-item class="btns">
-          <el-button type="primary">登录</el-button>
-          <el-button type="info" @click="reset">重置</el-button>
+          <el-button type="primary" @click="login">登录</el-button>
+          <el-button type="info" @click="resetLoginForm">重置</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -52,8 +52,13 @@ export default {
   },
   methods: {
     // 重置表单和验证提示
-    reset: function () {
+    resetLoginForm: function () {
       this.$refs.loginFormRef.resetFields()
+    },
+    login () {
+      this.$refs.loginFormRef.validate(valid => {
+        console.log(valid)
+      })
     }
   }
 }
