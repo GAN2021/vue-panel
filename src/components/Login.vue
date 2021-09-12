@@ -4,6 +4,22 @@
       <div class="login_logo">
         <img src="../assets/logo.png" alt />
       </div>
+      <!-- 登录表单 -->
+      <el-form class="login_form">
+        <!-- 用户名 -->
+        <el-form-item>
+          <el-input prefix-icon="iconfont icon-user"></el-input>
+        </el-form-item>
+        <!-- 密码 -->
+        <el-form-item>
+          <el-input prefix-icon="iconfont icon-3702mima"></el-input>
+        </el-form-item>
+        <!-- 按钮 -->
+        <el-form-item class="btns">
+          <el-button type="primary">登录</el-button>
+          <el-button type="info">重置</el-button>
+        </el-form-item>
+      </el-form>
     </div>
   </div>
 </template>
@@ -41,11 +57,11 @@ export default {
     background-color: #fff;
     border-radius: 50%;
     box-shadow: 0 0 10px #ddd;
-    border:1px solid #ddd;
+    border: 1px solid #ddd;
     padding: 10px;
     position: absolute;
     left: 50%;
-    transform:translate(-50%,-50%);
+    transform: translate(-50%, -50%);
 
     img {
       height: 100%;
@@ -54,5 +70,17 @@ export default {
       border-radius: 50%;
     }
   }
+}
+.login_form{
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  padding: 20px;
+  // 知道它的作用吗？
+  box-sizing: border-box;
+}
+.btns{
+  display: flex;
+  justify-content: flex-end ;
 }
 </style>
