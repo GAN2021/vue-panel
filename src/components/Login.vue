@@ -70,6 +70,10 @@ export default {
         }
         // 登录成功
         this.$message({ message: '登录成功', type: 'success' })
+        // 存储token
+        window.sessionStorage.setItem('token', res.data.token)
+        // 跳转到主页
+        this.$router.push('/home')
       })
     }
   }
