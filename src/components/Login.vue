@@ -5,14 +5,18 @@
         <img src="../assets/logo.png" alt />
       </div>
       <!-- 登录表单 -->
-      <el-form :model="loginForm" class="login_form">
+      <el-form :model="loginForm" :rules="loginFormRules" class="login_form">
         <!-- 用户名 -->
-        <el-form-item>
+        <el-form-item prop="username">
           <el-input v-model="loginForm.username" prefix-icon="iconfont icon-user"></el-input>
         </el-form-item>
         <!-- 密码 -->
-        <el-form-item>
-          <el-input v-model="loginForm.password"  prefix-icon="iconfont icon-3702mima" type="password"></el-input>
+        <el-form-item prop="password">
+          <el-input
+            v-model="loginForm.password"
+            prefix-icon="iconfont icon-3702mima"
+            type="password"
+          ></el-input>
         </el-form-item>
         <!-- 按钮 -->
         <el-form-item class="btns">
@@ -28,9 +32,21 @@
 export default {
   data () {
     return {
+      // 登录表单数据
       loginForm: {
         username: 'admin',
         password: ''
+      },
+      // 登录表单验证规则
+      loginFormRules: {
+        username: [
+          { required: true, message: '用户不能为空', trigger: 'blur' },
+          { min: 3, max: 10, message: '用户名长度必须在 3 到 10 个字符之间', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '密码不能为空', trigger: 'blur' },
+          { min: 6, max: 15, message: '密码长度必须在 6 到 15 个字符之间', trigger: 'blur' }
+        ]
       }
     }
   }
