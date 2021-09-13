@@ -41,11 +41,33 @@
 
 <script>
 export default {
+  data () {
+    return {
+      // 左侧菜单数据
+      menuList: []
+    }
+  },
   methods: {
+    // 获取左侧菜单数据
+    async getMenuList () {
+      const { data: res } = await this.$http.get('menus')
+
+      if (res.meta.status !== 200) {
+        this.$message.error('菜单数据获取失败')
+      }
+
+      this.menuList = res.data
+      this.$message.success('菜单数据获取成功')
+      console.log(this.menuList)
+    },
+    // 退出登录
     logout () {
       window.sessionStorage.clear()
       this.$router.push('/login')
     }
+  },
+  created () {
+    this.getMenuList()
   }
 }
 </script>
@@ -78,7 +100,7 @@ export default {
 .home-container {
   height: 100%;
 }
-.el-menu{
+.el-menu {
   border-right: 0px;
 }
 </style>
