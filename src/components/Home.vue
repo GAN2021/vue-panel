@@ -22,17 +22,23 @@
           default-active="1"
           :collapse="isCollapsed"
           :collapse-transition="false"
+          router
           unique-opened
         >
           <!-- 一级菜单 -->
-          <el-submenu :index="item.id+''" v-for="item in menuList" :key="item.id">
+          <!-- 以及菜单的'/'+item.path似乎没什么路由作用 -->
+          <el-submenu :index="'/'+item.path" v-for="item in menuList" :key="item.id">
             <!-- 一级菜单区域 -->
             <template v-slot:title>
               <i :class="iconObjs[item.id]"></i>
               <span>{{item.authName}}</span>
             </template>
             <!-- 二级菜单 -->
-            <el-menu-item :index="subItem.id+''" v-for="subItem in item.children" :key="subItem.id">
+            <el-menu-item
+              :index="'/'+subItem.path"
+              v-for="subItem in item.children"
+              :key="subItem.id"
+            >
               <i class="el-icon-menu"></i>
               <span>{{subItem.authName}}</span>
             </el-menu-item>
@@ -40,7 +46,9 @@
         </el-menu>
       </el-aside>
       <!-- 主体区 -->
-      <el-main>主题区</el-main>
+      <el-main>
+        <router-view></router-view>
+      </el-main>
     </el-container>
   </el-container>
 </template>
