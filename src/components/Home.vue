@@ -11,24 +11,30 @@
     <!-- 中间区 -->
     <el-container>
       <!-- 侧边栏 -->
-      <el-aside width="200px">
+      <el-aside :width="isCollapsed ? '64px' : '200px'">
+        <!-- 侧边栏收起按钮 -->
+        <div class="toggle-button" @click="toggleMenu">|||</div>
         <el-menu
-          default-active="2"
           class="el-menu-vertical-demo"
-          @open="handleOpen"
-          @close="handleClose"
           background-color="#2b3758"
           text-color="#fff"
           active-text-color="#ffd04b"
+          default-active="1"
+          :collapse="isCollapsed"
+          :collapse-transition="false"
+          unique-opened
         >
-          <el-submenu index="1">
-            <template slot="title">
-              <i class="el-icon-user"></i>
-              <span>用户列表</span>
+          <!-- 一级菜单 -->
+          <el-submenu :index="item.id+''" v-for="item in menuList" :key="item.id">
+            <!-- 一级菜单区域 -->
+            <template v-slot:title>
+              <i :class="iconObjs[item.id]"></i>
+              <span>{{item.authName}}</span>
             </template>
-            <el-menu-item index="1-1">
-              <i class="el-icon-location"></i>
-              <span>选项一</span>
+            <!-- 二级菜单 -->
+            <el-menu-item :index="subItem.id+''" v-for="subItem in item.children" :key="subItem.id">
+              <i class="el-icon-menu"></i>
+              <span>{{subItem.authName}}</span>
             </el-menu-item>
           </el-submenu>
         </el-menu>
@@ -44,7 +50,17 @@ export default {
   data () {
     return {
       // 左侧菜单数据
-      menuList: []
+      menuList: [],
+      // 一级菜单图标（硬编码[todo:]）
+      iconObjs: {
+        125: 'iconfont icon-user',
+        103: 'iconfont icon-tijikongjian',
+        101: 'iconfont icon-shangpin',
+        102: 'iconfont icon-danju',
+        145: 'iconfont icon-baobiao'
+      },
+      // 侧边栏收起
+      isCollapsed: false
     }
   },
   methods: {
@@ -59,6 +75,10 @@ export default {
       this.menuList = res.data
       this.$message.success('菜单数据获取成功')
       console.log(this.menuList)
+    },
+    // 侧边栏收起与展开
+    toggleMenu () {
+      this.isCollapsed = !this.isCollapsed
     },
     // 退出登录
     logout () {
@@ -102,5 +122,18 @@ export default {
 }
 .el-menu {
   border-right: 0px;
+}
+.toggle-button {
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+}
+.iconfont {
+  padding-right: 7px;
 }
 </style>
