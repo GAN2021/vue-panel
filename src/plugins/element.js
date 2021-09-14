@@ -17,7 +17,11 @@ import {
   BreadcrumbItem,
   Card,
   Row,
-  Col
+  Col,
+  Table,
+  TableColumn,
+  Switch,
+  Tooltip
 } from 'element-ui'
 
 Vue.use(Form)
@@ -38,5 +42,10 @@ Vue.use(BreadcrumbItem)
 Vue.use(Card)
 Vue.use(Row)
 Vue.use(Col)
+Vue.use(Table)
+Vue.use(TableColumn)
+Vue.use(Switch)
+Vue.use(Tooltip)
+
 // 全局挂载
 Vue.prototype.$message = Message

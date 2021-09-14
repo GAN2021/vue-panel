@@ -22,6 +22,30 @@
       </el-row>
 
       <!-- 用户列表区域 -->
+      <el-table :data="userList" border stripe>
+        <el-table-column type="index" label="#"></el-table-column>
+        <el-table-column label="ID" prop="id"></el-table-column>
+        <el-table-column label="用户名" prop="username"></el-table-column>
+        <el-table-column label="角色" prop="role_name"></el-table-column>
+        <el-table-column label="邮箱" prop="email"></el-table-column>
+        <el-table-column label="创建时间" prop="created_time"></el-table-column>
+        <el-table-column label="电话" prop="mobile"></el-table-column>
+        <el-table-column label="启/禁用">
+          <template v-slot="scopeData">
+            <el-switch v-model="scopeData.row.mg_state"></el-switch>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="180">
+          <!-- 编辑按钮 -->
+          <el-button size="mini" type="primary" icon="el-icon-edit"></el-button>
+          <!-- 删除按钮 -->
+          <el-button size="mini" type="danger" icon="el-icon-delete"></el-button>
+          <!-- 分配权限按钮 -->
+          <el-tooltip effect="dark" content="权限分配" placement="top" :enterable="false">
+            <el-button size="mini" type="warning" icon="el-icon-setting"></el-button>
+          </el-tooltip>
+        </el-table-column>
+      </el-table>
     </el-card>
   </div>
 </template>
