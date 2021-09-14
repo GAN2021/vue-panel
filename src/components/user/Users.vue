@@ -12,8 +12,8 @@
       <el-row :gutter="20">
         <!-- 列表上方的功能区 -->
         <el-col :span="8">
-          <el-input placeholder="请输入内容" size="medium">
-            <el-button slot="append" icon="el-icon-search"></el-button>
+          <el-input placeholder="请输入要查询的用户名" v-model="queryInfo.query" clearable @clear="getUserList" size="medium" >
+            <el-button @click="getUserList" slot="append" icon="el-icon-search"></el-button>
           </el-input>
         </el-col>
         <el-col :span="4">
@@ -32,7 +32,7 @@
         <el-table-column label="电话" prop="mobile"></el-table-column>
         <el-table-column label="启/禁用">
           <template v-slot="scopeData">
-            <el-switch v-model="scopeData.row.mg_state"></el-switch>
+            <el-switch v-model="scopeData.row.mg_state" @change="changeUserState(scopeData.row)"></el-switch>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="180">
@@ -88,6 +88,16 @@ export default {
       this.total = res.data.total
       console.log(this.userList)
       console.log(this.total)
+    },
+    // 监听switch开关的状态
+    async changeUserState (userInfo) {
+      const { data: res } = await this.$http.put(`users/${userInfo.id}/state/${userInfo.mg_state}`)
+      if (res.meta.status !== 200) {
+        userInfo.mg_state = !userInfo.mg_state
+        return this.$message.error('修改用户状态失败')
+      }
+      this.$message.success('修改成功')
+      userInfo = res.data
     },
     // 分页大小变化处理函数
     handleSizeChange (newSize) {
