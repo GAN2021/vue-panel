@@ -46,6 +46,17 @@
           </el-tooltip>
         </el-table-column>
       </el-table>
+
+      <!-- 分页区域 -->
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="queryInfo.pagenum"
+        :page-sizes="[1, 2, 5, 10]"
+        :page-size="queryInfo.pagesize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+      ></el-pagination>
     </el-card>
   </div>
 </template>
@@ -58,7 +69,7 @@ export default {
       queryInfo: {
         query: '',
         pagenum: 1,
-        pagesize: 5
+        pagesize: 2
       },
       userList: [],
       total: 0
@@ -77,6 +88,16 @@ export default {
       this.total = res.data.total
       console.log(this.userList)
       console.log(this.total)
+    },
+    // 分页大小变化处理函数
+    handleSizeChange (newSize) {
+      this.queryInfo.pagesize = newSize
+      this.getUserList()
+    },
+    // 当前页码变化处理函数
+    handleCurrentChange (newCurrent) {
+      this.queryInfo.pagenum = newCurrent
+      this.getUserList()
     }
   },
   created () {
