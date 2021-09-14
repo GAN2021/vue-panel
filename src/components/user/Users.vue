@@ -9,7 +9,8 @@
 
     <!-- 卡片视图区域 -->
     <el-card>
-      <el-row gutter="20">
+      <el-row :gutter="20">
+        <!-- 列表上方的功能区 -->
         <el-col :span="8">
           <el-input placeholder="请输入内容" size="medium">
             <el-button slot="append" icon="el-icon-search"></el-button>
@@ -20,15 +21,43 @@
         </el-col>
       </el-row>
 
-    <!-- 用户列区域 -->
+      <!-- 用户列表区域 -->
     </el-card>
-
   </div>
 </template>
 
 <script>
 export default {
-
+  data () {
+    return {
+      // 用户列表查询参数
+      queryInfo: {
+        query: '',
+        pagenum: 1,
+        pagesize: 5
+      },
+      userList: [],
+      total: 0
+    }
+  },
+  methods: {
+    // 获取用户列表数据
+    async getUserList () {
+      // 这个{ params : ... } ?params?相当于命名参数
+      const { data: res } = await this.$http.get('users', { params: this.queryInfo })
+      if (res.meta.status !== 200) {
+        this.$message.error('用户列表数据获取失败！')
+        return
+      }
+      this.userList = res.data.users
+      this.total = res.data.total
+      console.log(this.userList)
+      console.log(this.total)
+    }
+  },
+  created () {
+    this.getUserList()
+  }
 }
 </script>
 
