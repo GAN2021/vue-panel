@@ -11,7 +11,7 @@
     <!-- 中间区 -->
     <el-container>
       <!-- 侧边栏 -->
-      <el-aside :width="isCollapsed ? '64px' : '200px'">
+      <el-aside :width="isCollapsed ? '60px' : '200px'">
         <!-- 侧边栏收起按钮 -->
         <div class="toggle-button" @click="toggleMenu">|||</div>
         <el-menu
@@ -19,9 +19,9 @@
           background-color="#2b3758"
           text-color="#fff"
           active-text-color="#ffd04b"
-          default-active="1"
           :collapse="isCollapsed"
           :collapse-transition="false"
+          :default-active="activePath"
           router
           unique-opened
         >
@@ -68,7 +68,8 @@ export default {
         145: 'iconfont icon-baobiao'
       },
       // 侧边栏收起
-      isCollapsed: false
+      isCollapsed: false,
+      activePath: ''
     }
   },
   methods: {
@@ -96,6 +97,7 @@ export default {
   },
   created () {
     this.getMenuList()
+    this.activePath = location.hash.slice(1)
   }
 }
 </script>
