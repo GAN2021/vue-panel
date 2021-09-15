@@ -94,6 +94,19 @@
 <script>
 export default {
   data () {
+    // 验证邮箱的规则
+    var emailValidator = (rule, value, cb) => {
+      const regEmail = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/
+      if (regEmail.test(value)) return cb()
+      cb(new Error('不是合法的邮箱'))
+    }
+    // 验证手机号的规则
+    var mobileValidator = (rule, value, cb) => {
+      const regMobile = /^(0|86|17951)?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/
+      if (regMobile.test(value)) return cb()
+      cb(new Error('不是合法的手机号'))
+    }
+
     return {
       // 用户列表查询参数
       queryInfo: {
@@ -123,10 +136,12 @@ export default {
           { min: 6, max: 15, message: '密码长度在6~15个字符之间', trigger: 'blur' }
         ],
         email: [
-          { required: true, message: '请输入邮箱', trigger: 'blur' }
+          { required: true, message: '请输入邮箱', trigger: 'blur' },
+          { validator: emailValidator, message: '邮箱格式不正确', trigger: 'blur' }
         ],
         mobile: [
-          { required: true, message: '请输入手机号', trigger: 'blur' }
+          { required: true, message: '请输入手机号', trigger: 'blur' },
+          { validator: mobileValidator, message: '手机号格式不正确', trigger: 'blur' }
         ]
       }
     }
