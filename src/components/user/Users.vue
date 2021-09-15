@@ -73,7 +73,7 @@
           <el-input v-model="addForm.username"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input v-model="addForm.password"></el-input>
+          <el-input v-model="addForm.password" type="password"></el-input>
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
           <el-input v-model="addForm.email"></el-input>
@@ -187,14 +187,23 @@ export default {
     // [添加用户]表单的提交按钮
     addUser () {
       // 提交前预验证
-      this.$refs.addFormRef.validate(valid => {
+      this.$refs.addFormRef.validate(async valid => {
         // 预验证失败，退出提交
         if (!valid) {
           return
         }
 
         // 预验证成功，开始提交
-        console.log('')
+        const { data: res } = await this.$http.post('users', this.addForm)
+        // 失败
+        if (res.meta.status !== 201) {
+          this.$message.error('添加用户失败！')
+          return
+        }
+        // 成功
+        this.$message.success('添加用户成功！')
+        this.addDialogVisible = false
+        this.getUserList()
       })
     }
   },
