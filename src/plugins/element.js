@@ -1,10 +1,11 @@
 import Vue from 'vue'
 import {
+  Message,
+  MessageBox,
   Form,
   FormItem,
   Button,
   Input,
-  Message,
   Container,
   Header,
   Aside,
@@ -53,3 +54,4 @@ Vue.use(Dialog)
 
 // 全局挂载
 Vue.prototype.$message = Message
+Vue.prototype.$confirm = MessageBox.confirm

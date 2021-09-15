@@ -51,7 +51,12 @@
               icon="el-icon-edit"
             ></el-button>
             <!-- 删除按钮 -->
-            <el-button size="mini" type="danger" icon="el-icon-delete"></el-button>
+            <el-button
+              size="mini"
+              type="danger"
+              @click="removeUser(scopeData.row.id)"
+              icon="el-icon-delete"
+            ></el-button>
             <!-- 分配权限按钮 -->
             <el-tooltip effect="dark" content="权限分配" placement="top" :enterable="false">
               <el-button size="mini" type="warning" icon="el-icon-setting"></el-button>
@@ -282,6 +287,28 @@ export default {
         this.editForm = {}
         this.getUserList()
       })
+    },
+    // 删除用户
+    removeUser (id) {
+      this.$confirm(`确定删除id为${id}的用户吗?`, '提示', {
+        cancelButtonText: '取消',
+        confirmButtonText: '删除',
+        cancelButtonClass: 'btn-custom-cancel',
+        confirmButtonClass: 'el-button--danger',
+        type: 'warning'
+      }).then(async () => {
+        // 开始删除
+        const { data: res } = await this.$http.delete('users/' + id)
+        if (res.meta.status !== 200) {
+          this.$message.error('删除失败！')
+          return
+        }
+        this.$message.success('删除成功！')
+        this.getUserList()
+      }).catch(() => {
+        // 取消删除
+        this.$message.info('已取消删除')
+      })
     }
   },
   created () {
@@ -290,5 +317,9 @@ export default {
 }
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
+.btn-custom-cancel {
+  float: right;
+  margin-left: 10px !important;
+}
 </style>
