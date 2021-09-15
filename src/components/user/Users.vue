@@ -66,12 +66,7 @@
     </el-card>
 
     <!-- 用户添加对话框 -->
-    <el-dialog
-      title="添加用户"
-      :visible.sync="addDialogVisible"
-      @close="addDialogClose"
-      width="50%"
-    >
+    <el-dialog title="添加用户" :visible.sync="addDialogVisible" @close="addDialogClose" width="50%">
       <!-- 用户添加表单 -->
       <el-form :model="addForm" ref="addFormRef" :rules="addFormRules" label-width="70px">
         <el-form-item label="用户名" prop="username">
@@ -88,7 +83,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="addDialogVisible = false">提 交</el-button>
+        <el-button type="primary" @click="addUser">提 交</el-button>
         <el-button @click="addDialogVisible = false">取 消</el-button>
       </span>
     </el-dialog>
@@ -188,6 +183,19 @@ export default {
     addDialogClose () {
       // 重置[添加用户]表单
       this.$refs.addFormRef.resetFields()
+    },
+    // [添加用户]表单的提交按钮
+    addUser () {
+      // 提交前预验证
+      this.$refs.addFormRef.validate(valid => {
+        // 预验证失败，退出提交
+        if (!valid) {
+          return
+        }
+
+        // 预验证成功，开始提交
+        console.log('')
+      })
     }
   },
   created () {
