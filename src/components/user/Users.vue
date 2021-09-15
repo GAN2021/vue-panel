@@ -66,8 +66,12 @@
     </el-card>
 
     <!-- 用户添加对话框 -->
-    <el-dialog title="添加用户" :visible.sync="addDialogVisible" width="50%">
-      <!-- :before-close="handleAddDialogClose" -->
+    <el-dialog
+      title="添加用户"
+      :visible.sync="addDialogVisible"
+      @close="addDialogClose"
+      width="50%"
+    >
       <!-- 用户添加表单 -->
       <el-form :model="addForm" ref="addFormRef" :rules="addFormRules" label-width="70px">
         <el-form-item label="用户名" prop="username">
@@ -179,6 +183,11 @@ export default {
     handleCurrentChange (newCurrent) {
       this.queryInfo.pagenum = newCurrent
       this.getUserList()
+    },
+    // [添加用户]对话框关闭
+    addDialogClose () {
+      // 重置[添加用户]表单
+      this.$refs.addFormRef.resetFields()
     }
   },
   created () {
