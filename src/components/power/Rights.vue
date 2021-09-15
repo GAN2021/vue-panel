@@ -9,8 +9,8 @@
 
     <!-- 卡片视图区域 -->
     <el-card>
-      <el-table :data="rightsList" style="width: 100%" border stripe>
-        <el-table-column type="index"></el-table-column>
+      <el-table :data="rightList" style="width: 100%" border stripe>
+        <el-table-column type="index" label="#"></el-table-column>
         <el-table-column prop="authName" label="权限名称"></el-table-column>
         <el-table-column prop="path" label="路径"></el-table-column>
         <el-table-column prop="level" label="权限层级">
@@ -29,7 +29,7 @@
 export default {
   data () {
     return {
-      rightsList: []
+      rightList: []
     }
   },
   created () {
@@ -44,7 +44,7 @@ export default {
         return
       }
       this.$message.success('权限列表获取成功')
-      this.rightsList = res.data
+      this.rightList = res.data
     }
   }
 }
