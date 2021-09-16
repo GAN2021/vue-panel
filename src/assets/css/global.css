@@ -19,12 +19,6 @@ html, body, #app{
 .el-pagination{
   margin-top: 15px;
 }
-.bdtop{
-  border-top: 1px solid #eee;
-}
-.bdbottom{
-  border-bottom: 1px solid #eee;
-}
 /* 垂直居中 */
 .vcenter{
   display: flex;
@@ -34,4 +28,11 @@ html, body, #app{
 .btn-custom-cancel {
   float: right;
   margin-left: 10px !important;
+}
+/* 解决权限展开列无法设置 padding-left的问题 */
+/* 别人项目里css库里这个样式就生效 */
+/* 我的项目里，这个样式就被来源未知的css给覆盖了 */
+/* 只能手动写下 */
+.el-table__expanded-cell[class*='cell'] {
+  padding: 20px 50px;
 }

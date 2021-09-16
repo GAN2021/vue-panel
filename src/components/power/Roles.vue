@@ -21,11 +21,11 @@
             <el-row
               v-for="(item1,i1) in scopeData.row.children"
               :key="item1.id"
-              :class="['bdbottom',i1===0?'bdtop':'','vcenter']"
+              :class="['rowbottom',i1===0?'rowtop':'','vcenter']"
             >
               <!-- 第一个列区域渲染1级权限 -->
               <el-col :span="5">
-                <el-tag closable>{{item1.authName}}</el-tag>
+                <el-tag :disable-transitions="false" closable>{{item1.authName}}</el-tag>
                 <i class="el-icon-caret-right"></i>
               </el-col>
 
@@ -34,7 +34,7 @@
                 <el-row
                   v-for="(item2,i2) in item1.children"
                   :key="item2.id"
-                  :class="[i2===0?'':'bdtop','vcenter']"
+                  :class="[i2===0?'':'rowtop','vcenter']"
                 >
                   <!-- 第二列区下第一列区渲染2级权限 -->
                   <el-col :span="5">
@@ -228,5 +228,11 @@ export default {
 <style lang="less" scoped>
 .el-tag {
   margin: 7px;
+}
+.rowbottom {
+  border-bottom: #ccc solid 1px;
+}
+.rowtop {
+  border-top: #ccc solid 1px;
 }
 </style>
