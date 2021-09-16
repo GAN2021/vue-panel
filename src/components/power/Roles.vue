@@ -76,8 +76,20 @@
       </el-table>
 
       <!-- 权限分配对话框 -->
-      <el-dialog title="提示" :visible.sync="setRightDialogVisible" width="50%">
-        <span>这是一段信息</span>
+      <el-dialog
+        title="提示"
+        :visible.sync="setRightDialogVisible"
+        @close="setRightDialogClose"
+        width="50%"
+      >
+        <!-- 权限树形控件 -->
+        <el-tree
+          ref="treeRef"
+          :data="rightsTree"
+          :props="rightsTreeProps"
+          show-checkbox
+          default-expand-all
+        ></el-tree>
         <span slot="footer" class="dialog-footer">
           <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
           <el-button @click="setRightDialogVisible = false">取 消</el-button>
@@ -94,7 +106,14 @@ export default {
       // 角色列表
       roleList: [],
       // 权限分配对话框显示/隐藏
-      setRightDialogVisible: false
+      setRightDialogVisible: false,
+      // 树形控件绑定数据
+      rightsTree: [],
+      // 树形控件属性绑定
+      rightsTreeProps: {
+        label: 'authName',
+        children: 'children'
+      }
     }
   },
   created () {
@@ -142,7 +161,12 @@ export default {
     },
     // 显示权限分配对话框
     showSetRightDialog (role) {
+      this.rightsTree = role.children
       this.setRightDialogVisible = true
+    },
+    // 权限分配对话框关闭事件处理函数
+    setRightDialogClose () {
+      this.rightsTree = []
     }
   }
 }
