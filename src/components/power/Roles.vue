@@ -62,13 +62,27 @@
         <el-table-column label="角色名称" prop="roleName"></el-table-column>
         <el-table-column label="角色描述" prop="roleDesc"></el-table-column>
         <el-table-column label="操作" width="300">
-          <template v-slot>
+          <template v-slot="scopeData">
             <el-button size="mini" type="primary" icon="el-icon-edit">编辑</el-button>
             <el-button size="mini" type="danger" icon="el-icon-delete">删除</el-button>
-            <el-button size="mini" type="warning" icon="el-icon-setting">分配权限</el-button>
+            <el-button
+              size="mini"
+              type="warning"
+              icon="el-icon-setting"
+              @click="showSetRightDialog(scopeData.row)"
+            >分配权限</el-button>
           </template>
         </el-table-column>
       </el-table>
+
+      <!-- 权限分配对话框 -->
+      <el-dialog title="提示" :visible.sync="setRightDialogVisible" width="50%">
+        <span>这是一段信息</span>
+        <span slot="footer" class="dialog-footer">
+          <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+          <el-button @click="setRightDialogVisible = false">取 消</el-button>
+        </span>
+      </el-dialog>
     </el-card>
   </div>
 </template>
@@ -77,7 +91,10 @@
 export default {
   data () {
     return {
-      roleList: []
+      // 角色列表
+      roleList: [],
+      // 权限分配对话框显示/隐藏
+      setRightDialogVisible: false
     }
   },
   created () {
@@ -122,6 +139,10 @@ export default {
 
       console.log(role)
       console.log(rightId)
+    },
+    // 显示权限分配对话框
+    showSetRightDialog (role) {
+      this.setRightDialogVisible = true
     }
   }
 }
