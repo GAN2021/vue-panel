@@ -317,9 +317,5 @@ export default {
 }
 </script>
 
-<style lang="less">
-.btn-custom-cancel {
-  float: right;
-  margin-left: 10px !important;
-}
+<style lang="less" scoped>
 </style>

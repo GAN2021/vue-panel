@@ -2,6 +2,8 @@ html, body, #app{
   height: 100%;
   margin: 0;
   padding: 0;
+  /* 此宽度是在1366*768的分辨率下，从F12查看中查看到html元素宽度*/
+  min-width: 1349px;
 }
 .el-breadcrumb{
   margin-bottom: 15px;
@@ -16,4 +18,20 @@ html, body, #app{
 }
 .el-pagination{
   margin-top: 15px;
+}
+.bdtop{
+  border-top: 1px solid #eee;
+}
+.bdbottom{
+  border-bottom: 1px solid #eee;
+}
+/* 垂直居中 */
+.vcenter{
+  display: flex;
+  align-items: center;
+}
+/* elementui confirm 按钮样式 */
+.btn-custom-cancel {
+  float: right;
+  margin-left: 10px !important;
 }
