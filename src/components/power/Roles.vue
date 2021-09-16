@@ -87,8 +87,10 @@
           ref="treeRef"
           :data="rightsTree"
           :props="rightsTreeProps"
+          node-key="id"
+          :default-checked-keys="defKeys"
+          :default-expanded-keys="defKeys"
           show-checkbox
-          default-expand-all
         ></el-tree>
         <span slot="footer" class="dialog-footer">
           <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
@@ -107,8 +109,10 @@ export default {
       roleList: [],
       // 权限分配对话框显示/隐藏
       setRightDialogVisible: false,
-      // 树形控件绑定数据
+      // 树形控件绑定对象（所有权限tree）
       rightsTree: [],
+      // 树形控件默认选中的权限id集合
+      defKeys: [],
       // 树形控件属性绑定
       rightsTreeProps: {
         label: 'authName',
@@ -160,9 +164,29 @@ export default {
       console.log(rightId)
     },
     // 显示权限分配对话框
-    showSetRightDialog (role) {
-      this.rightsTree = role.children
+    async showSetRightDialog (role) {
+      // 获取并绑定权限列表（树形结构）
+      const { data: res } = await this.$http.get('rights/tree')
+      if (res.meta.status !== 200) {
+        this.$message.error('获取权限列表失败')
+      }
+      this.$message.success('获取权限列表成功')
+      this.rightsTree = res.data
+
+      // 获取叶子id数组
+      this.getLeafKeys(role, this.defKeys)
       this.setRightDialogVisible = true
+    },
+    // 获取一个角色的叶子权限的id集合（arr）
+    getLeafKeys (node, arr) {
+      // 如果没有children说明是叶子级权限，加入数组
+      if (!node.children) {
+        return arr.push(node.id)
+      }
+      // 不是叶子，则进行递归
+      node.children.forEach(item => {
+        this.getLeafKeys(item, arr)
+      })
     },
     // 权限分配对话框关闭事件处理函数
     setRightDialogClose () {
