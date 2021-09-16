@@ -93,7 +93,7 @@
           show-checkbox
         ></el-tree>
         <span slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+          <el-button type="primary" @click="updateRightsForRole">确 定</el-button>
           <el-button @click="setRightDialogVisible = false">取 消</el-button>
         </span>
       </el-dialog>
@@ -117,7 +117,9 @@ export default {
       rightsTreeProps: {
         label: 'authName',
         children: 'children'
-      }
+      },
+      // 待分配权限的角色
+      roleId: ''
     }
   },
   created () {
@@ -165,6 +167,9 @@ export default {
     },
     // 显示权限分配对话框
     async showSetRightDialog (role) {
+      // 由于roleId，只在此对话框中使用
+      // 因此不需要在退出对话框后清空
+      this.roleId = role.id
       // 获取并绑定权限列表（树形结构）
       const { data: res } = await this.$http.get('rights/tree')
       if (res.meta.status !== 200) {
@@ -188,8 +193,32 @@ export default {
         this.getLeafKeys(item, arr)
       })
     },
+    // 更新角色的权限
+    async updateRightsForRole () {
+      // 获取选中节点和半选中节点的id集合
+      const checkedKeys = this.$refs.treeRef.getCheckedKeys()
+      const halfCheckedKeys = this.$refs.treeRef.getHalfCheckedKeys()
+      const rightIds = [...checkedKeys, ...halfCheckedKeys]
+      // 构造地址和参数
+      const url = `roles/${this.roleId}/rights`
+      const param = { rids: rightIds.join(',') }
+      // 发起请求
+      const { data: res } = await this.$http.post(url, param)
+
+      if (res.meta.status !== 200) {
+        return this.$message.error('权限设置失败')
+      }
+      this.$message.success('权限设置成功')
+      this.setRightDialogVisible = false
+      this.getRoleList()
+    },
     // 权限分配对话框关闭事件处理函数
     setRightDialogClose () {
+      // 这个一定要清空，不清空的话
+      // 在增加角色权限时，没有bug
+      // 在删除角色的权限时，会发生再次显示时没有删除掉的bug
+      this.defKeys = []
+      // 虽然rightsTree存储的是权限列表，但是还是会有变化的可能，要清空
       this.rightsTree = []
     }
   }
