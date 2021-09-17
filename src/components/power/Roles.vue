@@ -4,14 +4,14 @@
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item>权限管理</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{path:'/roles'}">角色列表</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/roles' }">角色列表</el-breadcrumb-item>
     </el-breadcrumb>
 
     <!-- 卡片视图区域 -->
     <el-card>
       <el-row>
         <el-col>
-          <el-button type="primary" size="medium">添加角色</el-button>
+          <el-button @click="showAddRoleDialog" type="primary" size="medium">添加角色</el-button>
         </el-col>
       </el-row>
       <el-table :data="roleList" border stripe>
@@ -19,9 +19,9 @@
         <el-table-column type="expand">
           <template v-slot="scopeData">
             <el-row
-              v-for="(item1,i1) in scopeData.row.children"
+              v-for="(item1, i1) in scopeData.row.children"
               :key="item1.id"
-              :class="['rowbottom',i1===0?'rowtop':'','vcenter']"
+              :class="['rowbottom', i1 === 0 ? 'rowtop' : '', 'vcenter']"
             >
               <!-- 第一个列区域渲染1级权限 -->
               <el-col :span="5">
@@ -32,9 +32,9 @@
               <!-- 第二个列区域渲染2级、3级权限 -->
               <el-col :span="19">
                 <el-row
-                  v-for="(item2,i2) in item1.children"
+                  v-for="(item2, i2) in item1.children"
                   :key="item2.id"
-                  :class="[i2===0?'':'rowtop','vcenter']"
+                  :class="[i2 === 0 ? '' : 'rowtop', 'vcenter']"
                 >
                   <!-- 第二列区下第一列区渲染2级权限 -->
                   <el-col :span="5">
@@ -48,9 +48,9 @@
                       type="warning"
                       v-for="item3 in item2.children"
                       :key="item3.id"
-                      @close="removeRightById(scopeData.row,item3.id)"
+                      @close="removeRightById(scopeData.row, item3.id)"
                       closable
-                    >{{item3.authName}}</el-tag>
+                    >{{ item3.authName }}</el-tag>
                   </el-col>
                 </el-row>
               </el-col>
@@ -98,6 +98,33 @@
         </span>
       </el-dialog>
     </el-card>
+
+    <!-- 角色添加对话框 -->
+    <el-dialog
+      title="添加用户"
+      :visible.sync="addRoleDialogVisible"
+      @close="addRoleDialogClose"
+      width="50%"
+    >
+      <!-- 角色添加表单 -->
+      <el-form
+        :model="addRoleForm"
+        ref="addRoleFormRef"
+        :rules="addRoleFormRules"
+        label-width="70px"
+      >
+        <el-form-item label="角色名" prop="roleName">
+          <el-input v-model="addRoleForm.roleName"></el-input>
+        </el-form-item>
+        <el-form-item label="角色描述" prop="roleDesc">
+          <el-input v-model="addRoleForm.roleDesc"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="addRole">提 交</el-button>
+        <el-button @click="addRoleDialogVisible = false">取 消</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -119,7 +146,20 @@ export default {
         children: 'children'
       },
       // 待分配权限的角色
-      roleId: ''
+      roleId: '',
+      // [添加用户]对话框可见性
+      addRoleDialogVisible: false,
+      // [添加用户]表单
+      addRoleForm: {
+        roleName: '',
+        roleDesc: ''
+      },
+      // [添加用户]表单规则
+      addRoleFormRules: {
+        roleName: [
+          { required: true, message: '角色名不能为空', trigger: 'blur' }
+        ]
+      }
     }
   },
   created () {
@@ -212,6 +252,7 @@ export default {
       this.setRightDialogVisible = false
       this.getRoleList()
     },
+
     // 权限分配对话框关闭事件处理函数
     setRightDialogClose () {
       // 这个一定要清空，不清空的话
@@ -220,6 +261,30 @@ export default {
       this.defKeys = []
       // 虽然rightsTree存储的是权限列表，但是还是会有变化的可能，要清空
       this.rightsTree = []
+    },
+    // 显示[添加角色]对话框
+    showAddRoleDialog () {
+      this.addRoleDialogVisible = true
+    },
+    // [添加角色]对话框关闭处理函数
+    addRoleDialogClose () {
+      this.addRoleForm = {}
+    },
+    // [添加角色]操作
+    addRole () {
+      this.$refs.addRoleFormRef.validate(async valid => {
+        if (!valid) {
+          return
+        }
+        const { data: res } = await this.$http.post('roles', this.addRoleForm)
+        if (res.meta.status !== 201) {
+          this.$message.error('添加角色失败')
+          return
+        }
+        this.$message.success('添加角色成功')
+        this.addRoleDialogVisible = false
+        this.getRoleList()
+      })
     }
   }
 }
