@@ -64,7 +64,12 @@
         <el-table-column label="操作" width="300">
           <template v-slot="scopeData">
             <el-button size="mini" type="primary" icon="el-icon-edit">编辑</el-button>
-            <el-button size="mini" type="danger" icon="el-icon-delete">删除</el-button>
+            <el-button
+              size="mini"
+              type="danger"
+              icon="el-icon-delete"
+              @click="removeRole(scopeData.row.id)"
+            >删除</el-button>
             <el-button
               size="mini"
               type="warning"
@@ -284,6 +289,29 @@ export default {
         this.$message.success('添加角色成功')
         this.addRoleDialogVisible = false
         this.getRoleList()
+      })
+    },
+    // 删除角色
+    removeRole (id) {
+      // 删除确认提示
+      this.$confirm('删除该角色, 是否继续?', '提示', {
+        confirmButtonText: '删除',
+        cancelButtonText: '取消',
+        cancelButtonClass: 'btn-custom-cancel',
+        confirmButtonClass: 'el-button--danger',
+        type: 'warning'
+      }).then(async () => {
+        // 确认删除，开始删除
+        const { data: res } = await this.$http.delete(`roles/${id}`)
+        if (res.meta.status !== 200) {
+          this.$message.error('删除失败')
+          return
+        }
+        this.$message.success('删除成功')
+        this.getRoleList()
+      }).catch(() => {
+        // 取消删除
+        this.$message.info('已取消删除')
       })
     }
   }
