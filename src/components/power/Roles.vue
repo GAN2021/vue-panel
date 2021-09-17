@@ -63,7 +63,12 @@
         <el-table-column label="角色描述" prop="roleDesc"></el-table-column>
         <el-table-column label="操作" width="300">
           <template v-slot="scopeData">
-            <el-button size="mini" type="primary" icon="el-icon-edit">编辑</el-button>
+            <el-button
+              size="mini"
+              type="primary"
+              icon="el-icon-edit"
+              @click="showEditRoleDialog(scopeData.row.id)"
+            >编辑</el-button>
             <el-button
               size="mini"
               type="danger"
@@ -130,6 +135,36 @@
         <el-button @click="addRoleDialogVisible = false">取 消</el-button>
       </span>
     </el-dialog>
+
+    <!-- 角色编辑对话框 -->
+    <el-dialog
+      title="编辑用户"
+      :visible.sync="editRoleDialogVisible"
+      @close="editRoleDialogClose"
+      width="50%"
+    >
+      <!-- 角色编辑表单 -->
+      <el-form
+        :model="editRoleForm"
+        ref="editRoleFormRef"
+        :rules="editRoleFormRules"
+        label-width="80px"
+      >
+        <el-form-item label="角色名ID" prop="roleId">
+          <el-input v-model="editRoleForm.roleId" disabled></el-input>
+        </el-form-item>
+        <el-form-item label="角色名" prop="roleName">
+          <el-input v-model="editRoleForm.roleName"></el-input>
+        </el-form-item>
+        <el-form-item label="角色描述" prop="roleDesc">
+          <el-input v-model="editRoleForm.roleDesc"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="editRole">提 交</el-button>
+        <el-button @click="editRoleDialogVisible = false">取 消</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -161,6 +196,19 @@ export default {
       },
       // [添加用户]表单规则
       addRoleFormRules: {
+        roleName: [
+          { required: true, message: '角色名不能为空', trigger: 'blur' }
+        ]
+      },
+      // [编辑用户]对话框可见性
+      editRoleDialogVisible: false,
+      // [编辑用户]表单
+      editRoleForm: {},
+      // [编辑用户]表单规则
+      editRoleFormRules: {
+        roleId: [
+          { required: true, message: '角色名ID', trigger: 'blur' }
+        ],
         roleName: [
           { required: true, message: '角色名不能为空', trigger: 'blur' }
         ]
@@ -275,7 +323,7 @@ export default {
     addRoleDialogClose () {
       this.addRoleForm = {}
     },
-    // [添加角色]操作
+    // [添加角色]提交操作
     addRole () {
       this.$refs.addRoleFormRef.validate(async valid => {
         if (!valid) {
@@ -313,6 +361,36 @@ export default {
         // 取消删除
         this.$message.info('已取消删除')
       })
+    },
+    // [编辑角色]对话框关闭处理函数
+    editRoleDialogClose () {
+      this.editRoleForm = {}
+    },
+    // 显示[编辑角色]对话框
+    async showEditRoleDialog (id) {
+      const { data: res } = await this.$http.get('roles/' + id)
+      if (res.meta.status !== 200) {
+        this.$message.error('获取编辑角色信息失败！')
+        return
+      }
+      this.editRoleForm = res.data
+      this.editRoleDialogVisible = true
+    },
+    // [编辑角色]提交操作
+    async editRole () {
+      const putParam = {
+        roleName: this.editRoleForm.roleName,
+        roleDesc: this.editRoleForm.roleDesc
+      }
+      const { data: res } = await this.$http.put(`roles/${this.editRoleForm.roleId}`, putParam)
+      if (res.meta.status !== 200) {
+        this.$message.error('编辑角色失败！')
+        return
+      }
+      this.$message.success('编辑角色成功！')
+      this.editRoleDialogVisible = false
+      // 这里也可以不刷新，而是直接修改本地的data中的roleList数据
+      this.getRoleList()
     }
   }
 }
