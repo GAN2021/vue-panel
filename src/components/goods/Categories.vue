@@ -13,7 +13,34 @@
       </el-row>
 
       <!-- 树形表格区域（商品分类列表） -->
-
+      <tree-table
+        :data="cateList"
+        :columns="columns"
+        :selection-type="false"
+        show-index
+        index-text="#"
+        :show-row-hover="false"
+        :expand-type="false"
+        border
+        class="catTable"
+      >
+        <!-- 是否启用列 -->
+        <template v-slot:isok="scope">
+          <i class="el-icon-success" style="color:green" v-if="scope.row.cat_deleted===false"></i>
+          <i class="el-icon-error" style="color:red" v-else-if="scope.row.cat_delete===true"></i>
+        </template>
+        <!-- 分类级别列 -->
+        <template v-slot:level="scope">
+          <el-tag type="primary" size="mini" v-if="scope.row.cat_level===0">一级</el-tag>
+          <el-tag type="success" size="mini" v-else-if="scope.row.cat_level===1">二级</el-tag>
+          <el-tag type="warning" size="mini" v-else-if="scope.row.cat_level===2">三级</el-tag>
+        </template>
+        <!-- 操作列 -->
+        <template v-slot:opts="scope">
+          <el-button type="primary" size="mini" class="el-icon-edit" @click="scope">&nbsp;编辑</el-button>
+          <el-button type="danger" size="mini" class="el-icon-delete">&nbsp;删除</el-button>
+        </template>
+      </tree-table>
       <!-- 分页条 -->
     </el-card>
   </div>
@@ -32,7 +59,24 @@ export default {
         pagesize: 5
       },
       // 总页数
-      total: ''
+      total: '',
+      // 用于vue-table组件列绑定
+      columns: [{
+        label: '分类名称',
+        prop: 'cat_name'
+      }, {
+        label: '是否启用',
+        type: 'template',
+        template: 'isok'
+      }, {
+        label: '分类级别',
+        type: 'template',
+        template: 'level'
+      }, {
+        label: '操作',
+        type: 'template',
+        template: 'opts'
+      }]
     }
   },
   methods: {
@@ -62,4 +106,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.catTable {
+  margin-top: 20px;
+}
 </style>
