@@ -41,6 +41,7 @@
           <el-button type="danger" size="mini" class="el-icon-delete">&nbsp;删除</el-button>
         </template>
       </tree-table>
+
       <!-- 分页条 -->
     </el-card>
   </div>
