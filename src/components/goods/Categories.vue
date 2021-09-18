@@ -13,6 +13,29 @@
       </el-row>
 
       <!-- 树形表格区域（商品分类列表） -->
+      <!-- 默认值 :tree-props="{children: 'children'}" -->
+      <el-table :data="cateList" row-key="cat_id" border>
+        <el-table-column type="index" label="#"></el-table-column>
+        <el-table-column prop="cat_id" label="ID" sortable></el-table-column>
+        <el-table-column prop="cat_name" label="分类名称"></el-table-column>
+        <el-table-column prop="cat_delete" label="是否有效" sortable>
+          <template v-slot="scopeData">
+            <i class="el-icon-success" style="color:green" v-if="scopeData.row.cat_deleted===false"></i>
+            <i class="el-icon-error" style="color:red" v-else-if="scopeData.row.cat_delete===true"></i>
+          </template>
+        </el-table-column>
+        <el-table-column prop="cat_level" label="分类层级">
+          <template v-slot="scopeData">
+            <el-tag type="primary" size="mini" v-if="scopeData.row.cat_level===0">一级</el-tag>
+            <el-tag type="success" size="mini" v-else-if="scopeData.row.cat_level===1">二级</el-tag>
+            <el-tag type="warning" size="mini" v-else-if="scopeData.row.cat_level===2">三级</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作">
+          <el-button type="primary" size="mini" class="el-icon-edit">编辑</el-button>
+          <el-button type="danger" size="mini" class="el-icon-delete">删除</el-button>
+        </el-table-column>
+      </el-table>
 
       <!-- 分页条 -->
     </el-card>
