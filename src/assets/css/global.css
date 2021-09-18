@@ -36,3 +36,8 @@ html, body, #app{
 .el-table__expanded-cell[class*='cell'] {
   padding: 20px 50px;
 }
+/* 完善级联选择器组件的样式 */
+.el-cascader-menu {
+  height: 300px;
+}
+/* .el-scrollbar__wrap { overflow-x: hidden; } */

@@ -9,7 +9,7 @@
 
     <el-card>
       <el-row>
-        <el-button type="primary" size="medium">添加商品分类</el-button>
+        <el-button type="primary" size="medium" @click="showAddCateDialog">添加商品分类</el-button>
       </el-row>
 
       <!-- 树形表格区域（商品分类列表） -->
@@ -53,6 +53,43 @@
         :total="total"
       ></el-pagination>
     </el-card>
+
+    <!-- 添加分类对话框 -->
+    <el-dialog
+      title="添加分类"
+      :visible.sync="addCateDialogVisible"
+      @close="addCateDialogClose"
+      width="50%"
+    >
+      <!-- 添加分类表单 -->
+      <el-form
+        :model="addCateForm"
+        ref="addCateFormRef"
+        :rules="addCateFormRules"
+        label-width="80px"
+      >
+        <el-form-item label="分类名称" prop="cat_name">
+          <el-input v-model="addCateForm.cat_name"></el-input>
+        </el-form-item>
+        <el-form-item label="父级分类">
+          <!-- props指定配置数据 -->
+          <!-- options指定数据源 -->
+          <!-- v-model指定的时表单控件的值 -->
+          <el-cascader
+            v-model="selectedCateKeys"
+            :options="parentCateList"
+            :props="cascaderProp"
+            @change="parentCateChanged"
+            clearable
+            :change-on-select="true"
+          ></el-cascader>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="addCate">提 交</el-button>
+        <el-button @click="addCateDialogVisible = false">取 消</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -69,7 +106,7 @@ export default {
         pagesize: 5
       },
       // 总页数
-      total: '',
+      total: 0,
       // 用于vue-table组件列绑定
       columns: [{
         label: '分类名称',
@@ -86,7 +123,33 @@ export default {
         label: '操作',
         type: 'template',
         template: 'opts'
-      }]
+      }],
+      // 添加分类对话框可见性
+      addCateDialogVisible: false,
+      // 添加分类表单
+      addCateForm: {
+        cat_pid: 0,
+        cat_name: '',
+        // 添加的分类层级
+        cat_level: 0
+      },
+      // 添加分类表单验证规则
+      addCateFormRules: {
+        cat_name: [
+          { required: true, message: '分类名不能为空', trigger: 'blur' }
+        ]
+      },
+      // 所有父级分类（非叶子级）
+      parentCateList: [],
+      // 级联选择器选中项
+      selectedCateKeys: [],
+      // 级联选择器配置
+      cascaderProp: {
+        expandTrigger: 'hover',
+        value: 'cat_id',
+        label: 'cat_name',
+        children: 'children'
+      }
     }
   },
   methods: {
@@ -117,6 +180,63 @@ export default {
     handleCurrentChange (current) {
       this.queryInfo.pagenum = current
       this.getCateList()
+    },
+    // 显示添加分类对话框
+    showAddCateDialog () {
+      this.addCateDialogVisible = true
+      this.getParentCateList()
+    },
+    // 获取所有父级（所以非叶子级）分类列表
+    async getParentCateList () {
+      const { data: res } = await this.$http.get('categories', { params: { type: 2 } })
+      if (res.meta.status !== 200) {
+        this.$message.error('获取所有父级分类失败！')
+        return
+      }
+      this.parentCateList = res.data
+      console.log(res.data)
+    },
+    // 级联选择器选择值发生改变，seletedKeys也会被更新
+    parentCateChanged () {
+      console.log(this.selectedCateKeys)
+      const len = this.selectedCateKeys.length
+      if (len > 0) {
+        this.addCateForm.cat_pid = this.selectedCateKeys[len - 1]
+        this.addCateForm.cat_level = len
+        // 父级id为 0、1、2
+        // 等级为0、1、2
+        // 所以level和len总是一致
+      } else {
+        this.addCateForm.cat_id = 0
+        this.addCateForm.cat_level = 0
+      }
+    },
+    // 添加分类表单提交
+    addCate () {
+      this.$refs.addCateFormRef.validate(async valid => {
+        if (!valid) {
+          return
+        }
+
+        const { data: res } = await this.$http.post('categories', this.addCateForm)
+        if (res.meta.status !== 201) {
+          this.$message.error('分类添加失败！')
+          return
+        }
+        this.$message.success('分类添加成功！')
+        this.addCateDialogVisible = false
+        this.getCateList()
+        console.log(res)
+      })
+    },
+    // 添加分类对话框关闭时
+    addCateDialogClose () {
+      // 这句话只清空了cat_name，因为其他两个属性没有绑定在具体的表单项上
+      this.$refs.addCateFormRef.resetFields()
+      this.selectedCateKeys = []
+      // ...
+      this.addCateForm.cat_pid = 0
+      this.addCateForm.cat_level = 0
     }
   },
   created () {
@@ -128,5 +248,8 @@ export default {
 <style lang="less" scoped>
 .catTable {
   margin-top: 20px;
+}
+.el-cascader {
+  width: 100%;
 }
 </style>
