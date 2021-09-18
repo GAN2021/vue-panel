@@ -37,7 +37,12 @@
         </template>
         <!-- 操作列 -->
         <template v-slot:opts="scope">
-          <el-button type="primary" size="mini" class="el-icon-edit" @click="scope">&nbsp;编辑</el-button>
+          <el-button
+            type="primary"
+            size="mini"
+            class="el-icon-edit"
+            @click="showEditDialog(scope.row.cat_id)"
+          >&nbsp;编辑</el-button>
           <el-button
             type="danger"
             size="mini"
@@ -93,6 +98,30 @@
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="addCate">提 交</el-button>
         <el-button @click="addCateDialogVisible = false">取 消</el-button>
+      </span>
+    </el-dialog>
+
+    <!-- 编辑分类对话框 -->
+    <el-dialog
+      title="编辑分类"
+      :visible.sync="editCateDialogVisible"
+      @close="editCateDialogClose"
+      width="50%"
+    >
+      <!-- 编辑分类表单 -->
+      <el-form
+        :model="editCateForm"
+        ref="editCateFormRef"
+        :rules="editCateFormRules"
+        label-width="80px"
+      >
+        <el-form-item label="分类名称" prop="cat_name">
+          <el-input v-model="editCateForm.cat_name" @input="fuckElementUIChange($event)"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="updateCate">提 交</el-button>
+        <el-button @click="editCateDialogVisible = false">取 消</el-button>
       </span>
     </el-dialog>
   </div>
@@ -154,6 +183,19 @@ export default {
         value: 'cat_id',
         label: 'cat_name',
         children: 'children'
+      },
+      // 分类编辑表单
+      editCateForm: {
+        id: '',
+        cat_name: ''
+      },
+      // 分类编辑对话框可见性
+      editCateDialogVisible: false,
+      // 分类编辑表单规则
+      editCateFormRules: {
+        cat_name: [
+          { required: true, message: '分类名不能为空', trigger: 'blur' }
+        ]
       }
     }
   },
@@ -242,6 +284,48 @@ export default {
       // ...
       this.addCateForm.cat_pid = 0
       this.addCateForm.cat_level = 0
+    },
+    // 显示编辑分类会话框
+    async showEditDialog (catId) {
+      console.log(this.editCateForm)
+      this.editCateForm.id = catId
+      console.log('----')
+      const { data: res } = await this.$http.get('categories/' + catId)
+      if (res.meta.status !== 200) {
+        console.log('--333--')
+        this.$message.error('获取分类信息失败！')
+        return
+      }
+      console.log(res.data)
+      this.editCateForm.cat_name = res.data.cat_name
+      this.editCateDialogVisible = true
+    },
+    // 编辑分类对话框关闭处理函数
+    editCateDialogClose () {
+      this.editCateForm = {}
+    },
+    fuckElementUIChange (e) {
+      this.$forceUpdate()
+    },
+    // 提交分类编辑表单
+    updateCate () {
+      // 提交前预验证
+      this.$refs.editCateFormRef.validate(async valid => {
+        // 验证失败
+        if (!valid) {
+          return
+        }
+        // 验证成功，开始提交
+        const { data: res } = await this.$http.put('categories/' + this.editCateForm.id, { cat_name: this.editCateForm.cat_name })
+        if (res.meta.status !== 200) {
+          this.$message.error('更新分类失败')
+          return
+        }
+
+        this.$message.success('更新分类成功')
+        this.editCateDialogVisible = false
+        this.getCateList()
+      })
     },
     // 删除分类
     async removeCat (id) {

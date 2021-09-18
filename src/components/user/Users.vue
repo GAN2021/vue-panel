@@ -318,7 +318,6 @@ export default {
         }
         this.$message.success('更新用户成功')
         this.editDialogVisible = false
-        this.editForm = {}
         this.getUserList()
       })
     },
