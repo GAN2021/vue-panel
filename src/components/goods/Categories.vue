@@ -116,6 +116,7 @@
         label-width="80px"
       >
         <el-form-item label="分类名称" prop="cat_name">
+          <!-- 这里可能组件嵌套过深，导致无法修改input内容 -->
           <el-input v-model="editCateForm.cat_name" @input="fuckElementUIChange($event)"></el-input>
         </el-form-item>
       </el-form>
