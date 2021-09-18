@@ -43,6 +43,15 @@
       </tree-table>
 
       <!-- 分页条 -->
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="queryInfo.pagenum"
+        :page-sizes="[1, 2, 5, 10]"
+        :page-size="queryInfo.pagesize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+      ></el-pagination>
     </el-card>
   </div>
 </template>
@@ -98,6 +107,16 @@ export default {
       console.log(this.total)
       console.log(this.queryInfo.pagenum)
       console.log(this.queryInfo.pagesize)
+    },
+    // 分页条页码大小变化
+    handleSizeChange (newSize) {
+      this.queryInfo.pagesize = newSize
+      this.getCateList()
+    },
+    // 分页条页数变化
+    handleCurrentChange (current) {
+      this.queryInfo.pagenum = current
+      this.getCateList()
     }
   },
   created () {
