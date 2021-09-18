@@ -38,7 +38,12 @@
         <!-- 操作列 -->
         <template v-slot:opts="scope">
           <el-button type="primary" size="mini" class="el-icon-edit" @click="scope">&nbsp;编辑</el-button>
-          <el-button type="danger" size="mini" class="el-icon-delete">&nbsp;删除</el-button>
+          <el-button
+            type="danger"
+            size="mini"
+            class="el-icon-delete"
+            @click="removeCat(scope.row.cat_id)"
+          >&nbsp;删除</el-button>
         </template>
       </tree-table>
 
@@ -237,6 +242,28 @@ export default {
       // ...
       this.addCateForm.cat_pid = 0
       this.addCateForm.cat_level = 0
+    },
+    // 删除分类
+    async removeCat (id) {
+      this.$confirm('确定删除分类吗?', '提示', {
+        cancelButtonText: '取消',
+        confirmButtonText: '删除',
+        cancelButtonClass: 'btn-custom-cancel',
+        confirmButtonClass: 'el-button--danger',
+        type: 'warning'
+      }).then(async () => {
+        // 开始删除
+        const { data: res } = await this.$http.delete('categories/' + id)
+        if (res.meta.status !== 200) {
+          this.$message.error('删除失败！')
+          return
+        }
+        this.$message.success('删除成功！')
+        this.getCateList()
+      }).catch(() => {
+        // 取消删除
+        this.$message.info('已取消删除')
+      })
     }
   },
   created () {
