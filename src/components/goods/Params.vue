@@ -31,10 +31,37 @@
         <!-- 添加动态参数面板 -->
         <el-tab-pane label="动态参数" name="many">
           <el-button type="primary" size="small" :disabled="isBtnDisabled">添加参数</el-button>
+          <!-- 动态参数表格 -->
+          <el-table :data="manyTableData" border stripe>
+            <el-table-column type="expand"></el-table-column>
+            <el-table-column type="index" label="#"></el-table-column>
+            <el-table-column label="参数ID" prop="attr_id"></el-table-column>
+            <el-table-column label="参数名称" prop="attr_name"></el-table-column>
+            <el-table-column label="操作">
+              <template v-slot>
+                <el-button size="mini" type="primary" class="el-icon-edit">&nbsp;编辑</el-button>
+                <el-button size="mini" type="danger" class="el-icon-delete">&nbsp;删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
         </el-tab-pane>
+
         <!-- 添加静态属性面板 -->
         <el-tab-pane label="静态属性" name="only">
           <el-button type="primary" size="small" :disabled="isBtnDisabled">添加属性</el-button>
+          <!-- 动态参数表格 -->
+          <el-table :data="onlyTableData" border stripe>
+            <el-table-column type="expand"></el-table-column>
+            <el-table-column type="index" label="#"></el-table-column>
+            <el-table-column label="参数ID" prop="attr_id"></el-table-column>
+            <el-table-column label="参数名称" prop="attr_name"></el-table-column>
+            <el-table-column label="操作">
+              <template v-slot>
+                <el-button size="mini" type="primary" class="el-icon-edit">&nbsp;编辑</el-button>
+                <el-button size="mini" type="danger" class="el-icon-delete">&nbsp;删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
         </el-tab-pane>
       </el-tabs>
     </el-card>
@@ -56,7 +83,11 @@ export default {
       // 分类级联选择器选中项
       seletedKeys: [],
       // 当前激活的页签
-      activeName: 'many'
+      activeName: 'many',
+      // 动态参数列表数据
+      manyTableData: [],
+      // 静态属性列表数据
+      onlyTableData: []
     }
   },
   methods: {
@@ -92,7 +123,12 @@ export default {
         this.$message.error('参数列表获取失败！')
         return
       }
-      console.log(res)
+      // 绑定到不同的数据源
+      if (this.activeName === 'many') {
+        this.manyTableData = res.data
+      } else {
+        this.onlyTableData = res.data
+      }
     }
   },
   computed: {
