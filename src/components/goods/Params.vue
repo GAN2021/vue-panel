@@ -71,23 +71,28 @@ export default {
       console.log(res.data)
     },
     // 级联选择器选中变化处理函数
-    async handleCateChange () {
+    handleCateChange () {
       // 没有选择三级分类
       if (this.seletedKeys.length !== 3) {
         this.seletedKeys = []
       }
 
       // 根据选择分类id、当前参数面板类型，发起参数列表请求
+      this.getParamsData()
+    },
+    // tabs点击处理函数
+    handleTabClick () {
+      this.getParamsData()
+    },
+    // 获取参数列表
+    // 根据选择分类id、当前参数面板类型
+    async getParamsData () {
       const { data: res } = await this.$http.get(`categories/${this.cateId}/attributes`, { params: { sel: this.activeName } })
       if (res.meta.status !== 200) {
         this.$message.error('参数列表获取失败！')
         return
       }
       console.log(res)
-    },
-    // tabs点击处理函数
-    handleTabClick () {
-      console.log(this.activeName)
     }
   },
   computed: {
