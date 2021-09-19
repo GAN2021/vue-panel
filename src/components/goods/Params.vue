@@ -30,7 +30,12 @@
       <el-tabs v-model="activeName" @tab-click="handleTabClick">
         <!-- 添加动态参数面板 -->
         <el-tab-pane label="动态参数" name="many">
-          <el-button type="primary" size="small" :disabled="isBtnDisabled">添加参数</el-button>
+          <el-button
+            type="primary"
+            size="small"
+            @click="showParamDialog"
+            :disabled="isBtnDisabled"
+          >添加参数</el-button>
           <!-- 动态参数表格 -->
           <el-table :data="manyTableData" border stripe>
             <el-table-column type="expand"></el-table-column>
@@ -48,7 +53,12 @@
 
         <!-- 添加静态属性面板 -->
         <el-tab-pane label="静态属性" name="only">
-          <el-button type="primary" size="small" :disabled="isBtnDisabled">添加属性</el-button>
+          <el-button
+            type="primary"
+            size="small"
+            @click="showParamDialog"
+            :disabled="isBtnDisabled"
+          >添加属性</el-button>
           <!-- 动态参数表格 -->
           <el-table :data="onlyTableData" border stripe>
             <el-table-column type="expand"></el-table-column>
@@ -65,6 +75,31 @@
         </el-tab-pane>
       </el-tabs>
     </el-card>
+
+    <!-- 参数添加对话框（动态参数、静态属性） -->
+    <!-- 对话框 -->
+    <el-dialog
+      :title="addParamTitle"
+      :visible.sync="addParamDialogVisible"
+      @close="addParamDialogClose"
+      width="50%"
+    >
+      <!-- 表单 -->
+      <el-form
+        :model="addParamForm"
+        ref="addParamFormRef"
+        :rules="addParamFormRules"
+        label-width="80px"
+      >
+        <el-form-item :label="labelText" prop="attr_name">
+          <el-input v-model="addParamForm.attr_name"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="addParam">提 交</el-button>
+        <el-button @click="addParamDialogVisible = false">取 消</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -87,7 +122,19 @@ export default {
       // 动态参数列表数据
       manyTableData: [],
       // 静态属性列表数据
-      onlyTableData: []
+      onlyTableData: [],
+      // 添加参数表单可见性
+      addParamDialogVisible: false,
+      // 添加参数表单数据
+      addParamForm: {
+        attr_name: ''
+      },
+      // 添加参数表单验证规则
+      addParamFormRules: {
+        attr_name: [
+          { required: true, message: '字段不能为空', trigger: 'blur' }
+        ]
+      }
     }
   },
   methods: {
@@ -129,6 +176,38 @@ export default {
       } else {
         this.onlyTableData = res.data
       }
+    },
+    // 显示[添加参数]对话框
+    showParamDialog () {
+      this.addParamDialogVisible = true
+    },
+    // [添加参数]对话框关闭处理函数
+    addParamDialogClose () {
+      this.$refs.addParamFormRef.resetFields()
+    },
+    // 提交添加参数请求
+    addParam () {
+      // 预校验
+      this.$refs.addParamFormRef.validate(async valid => {
+        if (!valid) {
+          return
+        }
+
+        const params = {
+          attr_name: this.addParamForm.attr_name,
+          attr_sel: this.activeName
+        }
+        // 发请求
+        const { data: res } = await this.$http.post(`categories/${this.cateId}/attributes`, params)
+        if (res.meta.status !== 201) {
+          this.$message.error('添加失败！')
+          return
+        }
+        // 成功
+        this.addParamDialogVisible = false
+        this.$message.success('添加成功！')
+        this.getParamsData()
+      })
     }
   },
   computed: {
@@ -141,6 +220,28 @@ export default {
       if (this.seletedKeys.length === 3) {
         return this.seletedKeys[2]
       } else {
+        return null
+      }
+    },
+    // 添加参数表单的标题
+    addParamTitle () {
+      if (this.activeName === 'many') {
+        return '添加参数'
+      } else if (this.activeName === 'only') {
+        return '添加属性'
+      } else {
+        console.log('数据出错')
+        return null
+      }
+    },
+    // 添加参数表单的字段标签
+    labelText () {
+      if (this.activeName === 'many') {
+        return '动态参数'
+      } else if (this.activeName === 'only') {
+        return '静态属性'
+      } else {
+        console.log('数据出错')
         return null
       }
     }
