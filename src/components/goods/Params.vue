@@ -11,6 +11,7 @@
     <el-card>
       <el-alert title="注意：只能为三级分类设置参数！" type="warning" :closable="false" show-icon></el-alert>
 
+      <!-- 分类选择 -->
       <el-row class="cat-opt">
         <el-col>
           选择商品分类：
@@ -24,6 +25,18 @@
           ></el-cascader>
         </el-col>
       </el-row>
+
+      <!-- 分类参数（tabs）区 -->
+      <el-tabs v-model="activeName" @tab-click="handleTabClick">
+        <!-- 添加动态参数面板 -->
+        <el-tab-pane label="动态参数" name="first">
+          <el-button type="primary" size="small" :disabled="isBtnDisabled">添加参数</el-button>
+        </el-tab-pane>
+        <!-- 添加静态属性面板 -->
+        <el-tab-pane label="静态属性" name="second">
+          <el-button type="primary" size="small" :disabled="isBtnDisabled">添加属性</el-button>
+        </el-tab-pane>
+      </el-tabs>
     </el-card>
   </div>
 </template>
@@ -41,7 +54,9 @@ export default {
         children: 'children'
       },
       // 分类级联选择器选中项
-      seletedKeys: []
+      seletedKeys: [],
+      // 当前激活的页签
+      activeName: 'first'
     }
   },
   methods: {
@@ -60,6 +75,14 @@ export default {
       if (this.seletedKeys.length !== 3) {
         this.seletedKeys = []
       }
+    },
+    // tabs点击处理函数
+    handleTabClick () { }
+  },
+  computed: {
+    // 未选择分类则，按钮被禁用
+    isBtnDisabled () {
+      return this.seletedKeys.length !== 3
     }
   },
   created () {
