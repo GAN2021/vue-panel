@@ -43,9 +43,19 @@
             <el-table-column label="参数ID" prop="attr_id"></el-table-column>
             <el-table-column label="参数名称" prop="attr_name"></el-table-column>
             <el-table-column label="操作">
-              <template v-slot>
-                <el-button size="mini" type="primary" class="el-icon-edit">&nbsp;编辑</el-button>
-                <el-button size="mini" type="danger" class="el-icon-delete">&nbsp;删除</el-button>
+              <template v-slot="scope">
+                <el-button
+                  size="mini"
+                  type="primary"
+                  class="el-icon-edit"
+                  @click="showEditParamDialog(scope.row.attr_id)"
+                >&nbsp;编辑</el-button>
+                <el-button
+                  size="mini"
+                  type="danger"
+                  class="el-icon-delete"
+                  @click="removeParam(scope.row.attr_id)"
+                >&nbsp;删除</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -59,16 +69,26 @@
             @click="showParamDialog"
             :disabled="isBtnDisabled"
           >添加属性</el-button>
-          <!-- 动态参数表格 -->
+          <!-- 静态参数表格 -->
           <el-table :data="onlyTableData" border stripe>
             <el-table-column type="expand"></el-table-column>
             <el-table-column type="index" label="#"></el-table-column>
             <el-table-column label="参数ID" prop="attr_id"></el-table-column>
             <el-table-column label="参数名称" prop="attr_name"></el-table-column>
             <el-table-column label="操作">
-              <template v-slot>
-                <el-button size="mini" type="primary" class="el-icon-edit">&nbsp;编辑</el-button>
-                <el-button size="mini" type="danger" class="el-icon-delete">&nbsp;删除</el-button>
+              <template v-slot="scope">
+                <el-button
+                  size="mini"
+                  type="primary"
+                  class="el-icon-edit"
+                  @click="showEditParamDialog(scope.row.attr_id)"
+                >&nbsp;编辑</el-button>
+                <el-button
+                  size="mini"
+                  type="danger"
+                  class="el-icon-delete"
+                  @click="removeParam(scope.row.attr_id)"
+                >&nbsp;删除</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -100,6 +120,30 @@
         <el-button @click="addParamDialogVisible = false">取 消</el-button>
       </span>
     </el-dialog>
+
+    <!-- 参数编辑对话框（动态参数、静态属性） -->
+    <el-dialog
+      :title="addParamTitle"
+      :visible.sync="editParamDialogVisible"
+      @close="editParamDialogClose"
+      width="50%"
+    >
+      <!-- 表单 -->
+      <el-form
+        :model="editParamForm"
+        ref="editParamFormRef"
+        :rules="addParamFormRules"
+        label-width="80px"
+      >
+        <el-form-item :label="labelText" prop="attr_name">
+          <el-input v-model="editParamForm.attr_name"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="updateParam">提 交</el-button>
+        <el-button @click="editParamDialogVisible = false">取 消</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -129,11 +173,18 @@ export default {
       addParamForm: {
         attr_name: ''
       },
-      // 添加参数表单验证规则
+      // 添加参数表单验证规则(edit复用)
       addParamFormRules: {
         attr_name: [
           { required: true, message: '字段不能为空', trigger: 'blur' }
         ]
+      },
+      // 编辑参数表单可见性
+      editParamDialogVisible: false,
+      // 编辑参数表单数据
+      editParamForm: {
+        attr_id: '',
+        attr_name: ''
       }
     }
   },
@@ -153,6 +204,7 @@ export default {
       // 没有选择三级分类
       if (this.seletedKeys.length !== 3) {
         this.seletedKeys = []
+        this.$message.warning('请选择三级分类！')
       }
 
       // 根据选择分类id、当前参数面板类型，发起参数列表请求
@@ -165,9 +217,14 @@ export default {
     // 获取参数列表
     // 根据选择分类id、当前参数面板类型
     async getParamsData () {
+      if (this.cateId === null) {
+        this.$message.warning('请选择三级分类！')
+        return
+      }
       const { data: res } = await this.$http.get(`categories/${this.cateId}/attributes`, { params: { sel: this.activeName } })
       if (res.meta.status !== 200) {
         this.$message.error('参数列表获取失败！')
+        console.log(res)
         return
       }
       // 绑定到不同的数据源
@@ -207,6 +264,67 @@ export default {
         this.addParamDialogVisible = false
         this.$message.success('添加成功！')
         this.getParamsData()
+      })
+    },
+    // 显示编辑参数对话框
+    async showEditParamDialog (paramId) {
+      const { data: res } = await this.$http.get(`categories/${this.cateId}/attributes/${paramId}`, { params: { attr_sel: this.activeName } })
+      if (res.meta.status !== 200) {
+        this.$message.error('获取失败！')
+        return
+      }
+      this.editParamForm.attr_name = res.data.attr_name
+      this.editParamForm.attr_id = res.data.attr_id
+      this.editParamDialogVisible = true
+    },
+    // 提交编辑参数请求
+    updateParam () {
+      this.$refs.editParamFormRef.validate(async valid => {
+        if (!valid) {
+          return
+        }
+
+        const params = {
+          attr_name: this.editParamForm.attr_name,
+          attr_sel: this.activeName
+        }
+        const { data: res } = await this.$http.put(`categories/${this.cateId}/attributes/${this.editParamForm.attr_id}`, params)
+        if (res.meta.status !== 200) {
+          this.$message.error('更新失败！')
+          return
+        }
+
+        // 成功
+        this.editParamDialogVisible = false
+        this.$message.success('更新成功！')
+        this.getParamsData()
+      })
+    },
+    // [编辑参数]对话框关闭处理函数
+    editParamDialogClose () {
+      this.$refs.editParamFormRef.resetFields()
+      this.editParamForm.attr_id = null
+    },
+    // 删除参数
+    removeParam (paramId) {
+      this.$confirm('确定删除吗?', '提示', {
+        cancelButtonText: '取消',
+        confirmButtonText: '删除',
+        cancelButtonClass: 'btn-custom-cancel',
+        confirmButtonClass: 'el-button--danger',
+        type: 'warning'
+      }).then(async () => {
+        // 开始删除
+        const { data: res } = await this.$http.delete(`categories/${this.cateId}/attributes/${paramId}`)
+        if (res.meta.status !== 200) {
+          this.message.error('删除失败！')
+          return
+        }
+        this.$message.success('删除成功！')
+        this.getParamsData()
+      }).catch(() => {
+        // 取消删除
+        this.$message.info('已取消删除')
       })
     }
   },
