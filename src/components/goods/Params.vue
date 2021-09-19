@@ -29,11 +29,11 @@
       <!-- 分类参数（tabs）区 -->
       <el-tabs v-model="activeName" @tab-click="handleTabClick">
         <!-- 添加动态参数面板 -->
-        <el-tab-pane label="动态参数" name="first">
+        <el-tab-pane label="动态参数" name="many">
           <el-button type="primary" size="small" :disabled="isBtnDisabled">添加参数</el-button>
         </el-tab-pane>
         <!-- 添加静态属性面板 -->
-        <el-tab-pane label="静态属性" name="second">
+        <el-tab-pane label="静态属性" name="only">
           <el-button type="primary" size="small" :disabled="isBtnDisabled">添加属性</el-button>
         </el-tab-pane>
       </el-tabs>
@@ -56,7 +56,7 @@ export default {
       // 分类级联选择器选中项
       seletedKeys: [],
       // 当前激活的页签
-      activeName: 'first'
+      activeName: 'many'
     }
   },
   methods: {
@@ -71,18 +71,37 @@ export default {
       console.log(res.data)
     },
     // 级联选择器选中变化处理函数
-    handleCateChange () {
+    async handleCateChange () {
+      // 没有选择三级分类
       if (this.seletedKeys.length !== 3) {
         this.seletedKeys = []
       }
+
+      // 根据选择分类id、当前参数面板类型，发起参数列表请求
+      const { data: res } = await this.$http.get(`categories/${this.cateId}/attributes`, { params: { sel: this.activeName } })
+      if (res.meta.status !== 200) {
+        this.$message.error('参数列表获取失败！')
+        return
+      }
+      console.log(res)
     },
     // tabs点击处理函数
-    handleTabClick () { }
+    handleTabClick () {
+      console.log(this.activeName)
+    }
   },
   computed: {
     // 未选择分类则，按钮被禁用
     isBtnDisabled () {
       return this.seletedKeys.length !== 3
+    },
+    // 当前选中的三级分类ID
+    cateId () {
+      if (this.seletedKeys.length === 3) {
+        return this.seletedKeys[2]
+      } else {
+        return null
+      }
     }
   },
   created () {
