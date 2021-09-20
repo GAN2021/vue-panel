@@ -11,7 +11,14 @@
     <el-card>
       <el-row>
         <el-col :span="8">
-          <el-input placeholder="请输入商品关键词" v-model="queryInfo.query" size="medium" clearable @clear="getGoodsList">
+          <!-- 搜索功能几乎是复用了获取列表-->
+          <el-input
+            placeholder="请输入商品关键词"
+            v-model="queryInfo.query"
+            size="medium"
+            clearable
+            @clear="getGoodsList"
+          >
             <el-button slot="append" icon="el-icon-search" @click="getGoodsList"></el-button>
           </el-input>
         </el-col>
@@ -33,8 +40,13 @@
         </el-table-column>
         <el-table-column label="操作" width="120px">
           <template v-slot="scope">
-            <el-button size="mini" type="primary" icon="el-icon-edit" :tmp="scope.row.goods_id"></el-button>
-            <el-button size="mini" type="danger" icon="el-icon-delete"></el-button>
+            <el-button size="mini" type="primary" icon="el-icon-edit"></el-button>
+            <el-button
+              size="mini"
+              type="danger"
+              icon="el-icon-delete"
+              @click="removeGoods(scope.row.goods_id)"
+            ></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -92,6 +104,29 @@ export default {
     handleCurrentChange (newCurrent) {
       this.queryInfo.pagenum = newCurrent
       this.getGoodsList()
+    },
+    // 删除商品
+    async removeGoods (id) {
+      this.$confirm('确定删除吗?', '提示', {
+        cancelButtonText: '取消',
+        confirmButtonText: '删除',
+        cancelButtonClass: 'btn-custom-cancel',
+        confirmButtonClass: 'el-button--danger',
+        type: 'warning'
+      }).then(async () => {
+        // 开始删除
+        const { data: res } = await this.$http.delete('goods/' + id)
+        if (res.meta.status !== 200) {
+          this.message.error('删除商品失败！')
+          return
+        }
+        this.$message.success('删除商品成功！')
+        // 刷新商品列表
+        this.getGoodsList()
+      }).catch(() => {
+        // 取消删除
+        this.$message.info('已取消删除')
+      })
     }
   },
   created () {
