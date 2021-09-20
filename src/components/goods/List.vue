@@ -28,10 +28,36 @@
 <script>
 export default {
   data () {
-    return {}
+    return {
+      // 商品列表信息
+      goodsList: [],
+      // 查询字符串和分页信息
+      queryInfo: {
+        query: '',
+        pagenum: 1,
+        pagesize: 5
+      },
+      // 商品总条数
+      total: 0
+    }
   },
-  methods: {},
-  created () { }
+  methods: {
+    // 获取所有商品
+    async getGoodsList () {
+      const { data: res } = await this.$http.get('goods', { params: this.queryInfo })
+      if (res.meta.status !== 200) {
+        this.$message.error('获取商品列表失败！')
+        return
+      }
+      this.total = res.data.total
+      this.goodsList = res.data.goods
+      this.$message.success('获取商品列表成功！')
+      console.log(res.data)
+    }
+  },
+  created () {
+    this.getGoodsList()
+  }
 }
 </script>
 
