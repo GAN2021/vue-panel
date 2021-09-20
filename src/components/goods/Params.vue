@@ -42,12 +42,22 @@
               <template v-slot="scope">
                 <el-tag
                   type="primary"
-                  size="small"
                   v-for="item in scope.row.attr_vals"
                   :key="item.attr_id"
                   closable
                 >{{item}}</el-tag>
                 <!-- @close="handleValsClose(tag)" -->
+                <!-- 添加参数可选项 -->
+                <el-input
+                  class="input-new-tag"
+                  v-if="scope.row.attr_valsBool"
+                  v-model="scope.row.attr_valsValue"
+                  size="small"
+                  ref="saveTagInput"
+                  @keyup.enter.native="handleInputConfirm(scope.row)"
+                  @blur="handleInputConfirm(scope.row)"
+                ></el-input>
+                <el-button v-else class="button-new-tag" @click="showInput(scope.row)">+ 添加</el-button>
               </template>
             </el-table-column>
             <el-table-column type="index" label="#"></el-table-column>
@@ -242,6 +252,9 @@ export default {
       // 处理下attr_vals字符串格式
       res.data.forEach(item => {
         item.attr_vals = item.attr_vals ? item.attr_vals.split(' ') : []
+        // 添加一个字段，用于控制可选项添加功能的文本框显示与隐藏
+        item.attr_valsBool = false
+        item.attr_valsValue = ''
       })
 
       // 绑定到不同的数据源
@@ -343,6 +356,26 @@ export default {
         // 取消删除
         this.$message.info('已取消删除')
       })
+    },
+    // 文本框失去焦点/按下Enter触发
+    handleInputConfirm (row) {
+      // 如果没有有效内容就变回按钮
+      if (row.attr_valsValue.trim().length === 0) {
+        row.attr_valsValue = ''
+        row.attr_valsBool = false
+        return
+      }
+      console.log('ok')
+    },
+    // 点击按钮，展示attr_vals文本输入框
+    showInput (row) {
+      row.attr_valsBool = true
+
+      // 切换为文本框后，文本框自动获取焦点
+      // $nextTick 确保页面元素渲染后再后去焦点
+      this.$nextTick(_ => {
+        this.$refs.saveTagInput.$refs.input.focus()
+      })
     }
   },
   computed: {
@@ -399,7 +432,7 @@ export default {
 }
 // 可选项添加按钮
 .button-new-tag {
-  margin-left: 10px;
+  margin-left: 15px;
   height: 32px;
   line-height: 30px;
   padding-top: 0;
@@ -407,7 +440,7 @@ export default {
 }
 .input-new-tag {
   width: 90px;
-  margin-left: 10px;
+  margin-left: 15px;
   vertical-align: bottom;
 }
 </style>
