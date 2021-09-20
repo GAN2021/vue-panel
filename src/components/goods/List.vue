@@ -21,6 +21,20 @@
       </el-row>
 
       <!-- 商品列表区域 -->
+      <el-table :data="goodsList" border stripe>
+        <el-table-column type="index" label="#"></el-table-column>
+        <el-table-column label="商品名称" prop="goods_name"></el-table-column>
+        <el-table-column label="商品价格（元）" prop="goods_price" width="70px"></el-table-column>
+        <el-table-column label="商品重量" prop="goods_weight" width="70px"></el-table-column>
+        <el-table-column label="商品数量" prop="goods_number" width="70px"></el-table-column>
+        <el-table-column label="创建时间" prop="add_time" width="100px"></el-table-column>
+        <el-table-column label="操作" width="120px">
+          <template v-slot="scope">
+            <el-button size="mini" type="primary" icon="el-icon-edit" :tmp="scope.row.goods_id"></el-button>
+            <el-button size="mini" type="danger" icon="el-icon-delete"></el-button>
+          </template>
+        </el-table-column>
+      </el-table>
     </el-card>
   </div>
 </template>
