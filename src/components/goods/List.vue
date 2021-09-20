@@ -38,6 +38,18 @@
           </template>
         </el-table-column>
       </el-table>
+
+      <!-- 分页条 -->
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :page-sizes="[5, 10, 20, 40]"
+        :page-size="queryInfo.pagesize"
+        :current-page="queryInfo.pagenum"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+        background
+      ></el-pagination>
     </el-card>
   </div>
 </template>
@@ -70,6 +82,16 @@ export default {
       this.goodsList = res.data.goods
       this.$message.success('获取商品列表成功！')
       console.log(res.data)
+    },
+    // 分页条分大小变化
+    handleSizeChange (newSize) {
+      this.queryInfo.pagesize = newSize
+      this.getGoodsList()
+    },
+    // 分页条页码变化
+    handleCurrentChange (newCurrent) {
+      this.queryInfo.pagenum = newCurrent
+      this.getGoodsList()
     }
   },
   created () {
