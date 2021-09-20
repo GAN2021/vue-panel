@@ -42,11 +42,11 @@
               <template v-slot="scope">
                 <el-tag
                   type="primary"
-                  v-for="item in scope.row.attr_vals"
+                  v-for="(item,i) in scope.row.attr_vals"
                   :key="item.attr_id"
                   closable
+                  @close="hanldeTagClose(i,scope.row)"
                 >{{item}}</el-tag>
-                <!-- @close="handleValsClose(tag)" -->
                 <!-- 添加参数可选项 -->
                 <el-input
                   class="input-new-tag"
@@ -92,7 +92,28 @@
           >添加属性</el-button>
           <!-- 静态参数表格 -->
           <el-table :data="onlyTableData" border stripe>
-            <el-table-column type="expand"></el-table-column>
+            <el-table-column type="expand">
+              <template v-slot="scope">
+                <el-tag
+                  type="primary"
+                  v-for="(item,i) in scope.row.attr_vals"
+                  :key="item.attr_id"
+                  closable
+                  @close="hanldeTagClose(i,scope.row)"
+                >{{item}}</el-tag>
+                <!-- 添加参数可选项 -->
+                <el-input
+                  class="input-new-tag"
+                  v-if="scope.row.attr_valsBool"
+                  v-model="scope.row.attr_valsValue"
+                  size="small"
+                  ref="saveTagInput"
+                  @keyup.enter.native="handleInputConfirm(scope.row)"
+                  @blur="handleInputConfirm(scope.row)"
+                ></el-input>
+                <el-button v-else class="button-new-tag" @click="showInput(scope.row)">+ 添加</el-button>
+              </template>
+            </el-table-column>
             <el-table-column type="index" label="#"></el-table-column>
             <el-table-column label="参数ID" prop="attr_id"></el-table-column>
             <el-table-column label="参数名称" prop="attr_name"></el-table-column>
@@ -225,6 +246,8 @@ export default {
       // 没有选择三级分类
       if (this.seletedKeys.length !== 3) {
         this.seletedKeys = []
+        this.manyTableData = []
+        this.onlyTableData = []
         this.$message.warning('请选择三级分类！')
       }
 
@@ -358,22 +381,14 @@ export default {
       })
     },
     // 文本框失去焦点/按下Enter触发
-    async handleInputConfirm (row) {
+    handleInputConfirm (row) {
       // 拿到了有效值
       if (!(row.attr_valsValue.trim().length === 0)) {
-        // 发起更新请求
-        const { data: res } = await this.$http.put(`categories/${this.cateId}/attributes/${row.attr_id}`, {
-          attr_name: row.attr_name,
-          attr_sel: this.activeName,
-          attr_vals: row.attr_vals.join('') + '' + row.attr_valsValue
-        })
-        if (res.meta.status !== 200) {
-          this.$message.error('添加可选项失败！')
-          return
-        }
-        this.$message.success('添加成功！')
-        // 显示到UI
-        row.attr_vals.push(row.attr_valsValue)
+        // 更新到UI
+        row.attr_vals.push(row.attr_valsValue.trim())
+        // 更新可选项到数据库
+        this.saveAttrVals(row)
+        // 这里不严谨,如果更新失败,UI还是会显示新增tag[todo:]
       }
       // 重置为按钮
       row.attr_valsValue = ''
@@ -388,6 +403,28 @@ export default {
       this.$nextTick(_ => {
         this.$refs.saveTagInput.$refs.input.focus()
       })
+    },
+    // 删除对应参数的可选项
+    hanldeTagClose (i, row) {
+      console.log(i)
+      console.log(row)
+      row.attr_vals.splice(i, 1)
+      this.saveAttrVals(row)
+      // 这里不严谨,如果更新失败,UI还是会移除tag
+    },
+    // 保存可选项的更改
+    async saveAttrVals (row) {
+      // 发起更新请求
+      const { data: res } = await this.$http.put(`categories/${this.cateId}/attributes/${row.attr_id}`, {
+        attr_name: row.attr_name,
+        attr_sel: this.activeName,
+        attr_vals: row.attr_vals.join(' ')
+      })
+      if (res.meta.status !== 200) {
+        this.$message.error('更新参数可选项失败！')
+        return
+      }
+      this.$message.success('更新参数可选项成功！')
     }
   },
   computed: {
