@@ -358,14 +358,26 @@ export default {
       })
     },
     // 文本框失去焦点/按下Enter触发
-    handleInputConfirm (row) {
-      // 如果没有有效内容就变回按钮
-      if (row.attr_valsValue.trim().length === 0) {
-        row.attr_valsValue = ''
-        row.attr_valsBool = false
-        return
+    async handleInputConfirm (row) {
+      // 拿到了有效值
+      if (!(row.attr_valsValue.trim().length === 0)) {
+        // 发起更新请求
+        const { data: res } = await this.$http.put(`categories/${this.cateId}/attributes/${row.attr_id}`, {
+          attr_name: row.attr_name,
+          attr_sel: this.activeName,
+          attr_vals: row.attr_vals.join('') + '' + row.attr_valsValue
+        })
+        if (res.meta.status !== 200) {
+          this.$message.error('添加可选项失败！')
+          return
+        }
+        this.$message.success('添加成功！')
+        // 显示到UI
+        row.attr_vals.push(row.attr_valsValue)
       }
-      console.log('ok')
+      // 重置为按钮
+      row.attr_valsValue = ''
+      row.attr_valsBool = false
     },
     // 点击按钮，展示attr_vals文本输入框
     showInput (row) {
@@ -428,11 +440,11 @@ export default {
   width: 50%;
 }
 .el-tag {
-  margin-left: 15px;
+  margin: 8px;
 }
 // 可选项添加按钮
 .button-new-tag {
-  margin-left: 15px;
+  margin: 8px;
   height: 32px;
   line-height: 30px;
   padding-top: 0;
@@ -440,7 +452,7 @@ export default {
 }
 .input-new-tag {
   width: 90px;
-  margin-left: 15px;
+  margin: 8px;
   vertical-align: bottom;
 }
 </style>
