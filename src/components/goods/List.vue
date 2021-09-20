@@ -11,8 +11,8 @@
     <el-card>
       <el-row>
         <el-col :span="8">
-          <el-input placeholder="请输入商品关键词" size="medium">
-            <el-button slot="append" icon="el-icon-search"></el-button>
+          <el-input placeholder="请输入商品关键词" v-model="queryInfo.query" size="medium" clearable @clear="getGoodsList">
+            <el-button slot="append" icon="el-icon-search" @click="getGoodsList"></el-button>
           </el-input>
         </el-col>
         <el-col :span="4">
