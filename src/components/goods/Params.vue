@@ -38,7 +38,18 @@
           >添加参数</el-button>
           <!-- 动态参数表格 -->
           <el-table :data="manyTableData" border stripe>
-            <el-table-column type="expand"></el-table-column>
+            <el-table-column type="expand">
+              <template v-slot="scope">
+                <el-tag
+                  type="primary"
+                  size="small"
+                  v-for="item in scope.row.attr_vals"
+                  :key="item.attr_id"
+                  closable
+                >{{item}}</el-tag>
+                <!-- @close="handleValsClose(tag)" -->
+              </template>
+            </el-table-column>
             <el-table-column type="index" label="#"></el-table-column>
             <el-table-column label="参数ID" prop="attr_id"></el-table-column>
             <el-table-column label="参数名称" prop="attr_name"></el-table-column>
@@ -227,6 +238,12 @@ export default {
         console.log(res)
         return
       }
+
+      // 处理下attr_vals字符串格式
+      res.data.forEach(item => {
+        item.attr_vals = item.attr_vals ? item.attr_vals.split(' ') : []
+      })
+
       // 绑定到不同的数据源
       if (this.activeName === 'many') {
         this.manyTableData = res.data
@@ -376,5 +393,21 @@ export default {
 }
 .el-cascader {
   width: 50%;
+}
+.el-tag {
+  margin-left: 15px;
+}
+// 可选项添加按钮
+.button-new-tag {
+  margin-left: 10px;
+  height: 32px;
+  line-height: 30px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.input-new-tag {
+  width: 90px;
+  margin-left: 10px;
+  vertical-align: bottom;
 }
 </style>
