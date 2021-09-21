@@ -32,8 +32,22 @@
       >
         <!-- tabs区域 -->
         <el-tabs v-model="activeStepIndex" tab-position="left">
-          <el-tab-pane label="基本信息" name="0">基本信息</el-tab-pane>
-          <el-tab-pane label="商品参数" name="1">商品参数</el-tab-pane>
+          <!-- tabs1 -->
+          <el-tab-pane label="基本信息" name="0">
+            <el-form-item label="商品名称" prop="goods_name">
+              <el-input v-model="addForm.goods_name"></el-input>
+            </el-form-item>
+            <el-form-item label="商品价格" prop="goods_price">
+              <el-input v-model="addForm.goods_price" type="nubmer"></el-input>
+            </el-form-item>
+            <el-form-item label="商品重量" prop="goods_weight">
+              <el-input v-model="addForm.goods_weight" type="nubmer"></el-input>
+            </el-form-item>
+            <el-form-item label="商品数量" prop="goods_number">
+              <el-input v-model="addForm.goods_number" type="nubmer"></el-input>
+            </el-form-item>
+          </el-tab-pane>
+          <el-tab-pane label="商品参数" name="1"></el-tab-pane>
           <el-tab-pane label="商品属性" name="2">商品属性</el-tab-pane>
           <el-tab-pane label="商品图片" name="3">商品图片</el-tab-pane>
           <el-tab-pane label="商品内容" name="4">商品内容</el-tab-pane>
@@ -51,8 +65,26 @@ export default {
       // 赋值给steps时不转数字看起来也能工作
       activeStepIndex: '0',
       // 添加商品的表单数据对象
-      addForm: {},
-      addFormRules: {}
+      addForm: {
+        goods_name: '',
+        goods_price: 0,
+        goods_weight: 0,
+        goods_number: 0
+      },
+      addFormRules: {
+        goods_name: [
+          { required: true, message: '请输入商品名称', trigger: 'blur' }
+        ],
+        goods_price: [
+          { required: true, message: '请输入商品价格', trigger: 'blur' }
+        ],
+        goods_weight: [
+          { required: true, message: '请输入商品重量', trigger: 'blur' }
+        ],
+        goods_number: [
+          { required: true, message: '请输入商品数量', trigger: 'blur' }
+        ]
+      }
 
     }
   },
