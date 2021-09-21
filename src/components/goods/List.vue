@@ -23,7 +23,7 @@
           </el-input>
         </el-col>
         <el-col :span="4">
-          <el-button type="primary" size="medium" class="btn-add">添加商品</el-button>
+          <el-button type="primary" size="medium" class="btn-add" @click="goAddPage">添加商品</el-button>
         </el-col>
       </el-row>
 
@@ -127,6 +127,10 @@ export default {
         // 取消删除
         this.$message.info('已取消删除')
       })
+    },
+    // 跳转到商品添加页面
+    goAddPage () {
+      this.$router.push('goods/add')
     }
   },
   created () {
