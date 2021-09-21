@@ -61,6 +61,7 @@
               ></el-cascader>
             </el-form-item>
           </el-tab-pane>
+
           <!-- tabs2 商品参数 -->
           <el-tab-pane label="商品参数" name="1">
             <el-form-item
@@ -82,8 +83,19 @@
               <hr />
             </el-form-item>
           </el-tab-pane>
+
           <!-- tabs3 商品属性-->
-          <el-tab-pane label="商品属性" name="2">商品属性</el-tab-pane>
+          <el-tab-pane label="商品属性" name="2">
+            <el-form-item
+              size="small"
+              :label="item.attr_name"
+              v-for="item in onlyTableData"
+              :key="item.attr_id"
+            >
+              <el-input v-model="item.attr_vals"></el-input>
+            </el-form-item>
+          </el-tab-pane>
+
           <!-- tabs4 商品图片-->
           <el-tab-pane label="商品图片" name="3">商品图片</el-tab-pane>
           <!-- tabs5 商品内容-->
@@ -139,7 +151,9 @@ export default {
         expandTrigger: 'hover'
       },
       // 选择分类的动态参数
-      manyTableData: []
+      manyTableData: [],
+      // 选择分类的静态属性
+      onlyTableData: []
     }
   },
   methods: {
@@ -169,8 +183,6 @@ export default {
     },
     // 点击tab时触发
     async tabClicked () {
-      console.log(this.manyTableData)
-      console.log(this.activeStepIndex)
       if (this.activeStepIndex === '1') {
         const { data: res } = await this.$http.get(`categories/${this.cateId}/attributes`, {
           params: {
@@ -193,6 +205,21 @@ export default {
         // 保存到本地data()
         this.manyTableData = res.data
         console.log(this.manyTableData)
+      } else if (this.activeStepIndex === '2') {
+        const { data: res } = await this.$http.get(`categories/${this.cateId}/attributes`, {
+          params: {
+            sel: 'only'
+          }
+        })
+        if (res.meta.status !== 200) {
+          this.$message.error('静态属性获取失败！')
+          return
+        }
+        this.$message.success('静态属性获取成功！')
+
+        // 保存到本地data()
+        this.onlyTableData = res.data
+        console.log(this.onlyTableData)
       }
     }
   },
