@@ -31,7 +31,12 @@
         label-position="top"
       >
         <!-- tabs区域 -->
-        <el-tabs v-model="activeStepIndex" tab-position="left" :before-leave="beforeTabLeave">
+        <el-tabs
+          v-model="activeStepIndex"
+          tab-position="left"
+          :before-leave="beforeTabLeave"
+          @tab-click="tabClicked"
+        >
           <!-- tabs1 基本信息-->
           <el-tab-pane label="基本信息" name="0">
             <el-form-item label="商品名称" prop="goods_name">
@@ -57,7 +62,25 @@
             </el-form-item>
           </el-tab-pane>
           <!-- tabs2 商品参数 -->
-          <el-tab-pane label="商品参数" name="1"></el-tab-pane>
+          <el-tab-pane label="商品参数" name="1">
+            <el-form-item
+              :label="'参数： '+item.attr_name"
+              v-for="item in manyTableData"
+              :key="item.attr_id"
+            >
+              <el-checkbox-group v-model="item.attr_vals">
+                <!-- 在页面中点击checkbox会从manyTableData中移除vals中的对应值 -->
+                <el-checkbox
+                  size="small"
+                  :label="item2"
+                  v-for="(item2,i) in item.attr_vals"
+                  :key="i"
+                  border
+                ></el-checkbox>
+              </el-checkbox-group>
+              <hr />
+            </el-form-item>
+          </el-tab-pane>
           <!-- tabs3 商品属性-->
           <el-tab-pane label="商品属性" name="2">商品属性</el-tab-pane>
           <!-- tabs4 商品图片-->
@@ -113,7 +136,9 @@ export default {
         label: 'cat_name',
         children: 'children',
         expandTrigger: 'hover'
-      }
+      },
+      // 选择分类的动态参数
+      manyTableData: []
     }
   },
   methods: {
@@ -139,6 +164,42 @@ export default {
       if (oldActiveName === '0' && this.addForm.goods_cat.length !== 3) {
         this.$message.error('请选择商品分类')
         return false
+      }
+    },
+    // 点击tab时触发
+    async tabClicked () {
+      console.log(this.manyTableData)
+      console.log(this.activeStepIndex)
+      if (this.activeStepIndex === '1') {
+        const { data: res } = await this.$http.get(`categories/${this.cateId}/attributes`, {
+          params: {
+            sel: 'many'
+          }
+        })
+        if (res.meta.status !== 200) {
+          this.$message.error('动态参数获取失败！')
+          return
+        }
+        this.$message.success('动态参数获取成功！')
+
+        // 需要把attr_vals转成数组类型
+        res.data.forEach(item => {
+          item.attr_vals = item.attr_vals ? item.attr_vals.split(' ') : []
+        })
+
+        // 保存到本地data()
+        this.manyTableData = res.data
+        console.log(this.manyTableData)
+      }
+    }
+  },
+  computed: {
+    // 当前选中的三级分类ID
+    cateId () {
+      if (this.addForm.goods_cat.length === 3) {
+        return this.addForm.goods_cat[2]
+      } else {
+        return null
       }
     }
   },
