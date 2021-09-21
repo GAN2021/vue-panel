@@ -32,7 +32,7 @@
       >
         <!-- tabs区域 -->
         <el-tabs v-model="activeStepIndex" tab-position="left">
-          <!-- tabs1 -->
+          <!-- tabs1 基本信息-->
           <el-tab-pane label="基本信息" name="0">
             <el-form-item label="商品名称" prop="goods_name">
               <el-input v-model="addForm.goods_name"></el-input>
@@ -46,10 +46,23 @@
             <el-form-item label="商品数量" prop="goods_number">
               <el-input v-model="addForm.goods_number" type="nubmer"></el-input>
             </el-form-item>
+            <el-form-item label="商品分类" prop="goods_cat">
+              <el-cascader
+                v-model="addForm.goods_cat"
+                :options="cateList"
+                :props="cascaderProp"
+                @change="handleChange"
+                clearable
+              ></el-cascader>
+            </el-form-item>
           </el-tab-pane>
+          <!-- tabs2 商品参数 -->
           <el-tab-pane label="商品参数" name="1"></el-tab-pane>
+          <!-- tabs3 商品属性-->
           <el-tab-pane label="商品属性" name="2">商品属性</el-tab-pane>
+          <!-- tabs4 商品图片-->
           <el-tab-pane label="商品图片" name="3">商品图片</el-tab-pane>
+          <!-- tabs5 商品内容-->
           <el-tab-pane label="商品内容" name="4">商品内容</el-tab-pane>
         </el-tabs>
       </el-form>
@@ -69,7 +82,10 @@ export default {
         goods_name: '',
         goods_price: 0,
         goods_weight: 0,
-        goods_number: 0
+        goods_number: 0,
+        // 商品所属的分类数组
+        // 注意后端接口需要的不是数组格式
+        goods_cat: []
       },
       addFormRules: {
         goods_name: [
@@ -83,13 +99,44 @@ export default {
         ],
         goods_number: [
           { required: true, message: '请输入商品数量', trigger: 'blur' }
+        ],
+        // 不过级联选择器的required验证规则似乎看不到效果，估计只能在预验证时才能看到效果
+        goods_cat: [
+          { required: true, message: '请选择商品分类', trigger: 'blur' }
         ]
+      },
+      // 所有商品分类
+      cateList: [],
+      // 级联选择及配置
+      cascaderProp: {
+        value: 'cat_id',
+        label: 'cat_name',
+        children: 'children',
+        expandTrigger: 'hover'
       }
-
     }
   },
-  methods: {},
-  created () { }
+  methods: {
+    async getCateList () {
+      const { data: res } = await this.$http.get('categories')
+      if (res.meta.status !== 200) {
+        this.$message.error('获取商品分类列表失败！')
+        return
+      }
+      this.cateList = res.data
+      console.log(this.cateList)
+    },
+    // 商品分类级联选择器选中值变化处理函数
+    handleChange () {
+      // 不允许选择非三级分类
+      if (this.addForm.goods_cat.length !== 3) {
+        this.addForm.goods_cat.length = []
+      }
+    }
+  },
+  created () {
+    this.getCateList()
+  }
 }
 </script>
 
