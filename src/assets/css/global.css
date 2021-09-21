@@ -41,3 +41,11 @@ html, body, #app{
   height: 300px;
 }
 /* .el-scrollbar__wrap { overflow-x: hidden; } */
+
+/* 调整步骤条样式 */
+.el-steps{
+  margin: 15px 0;
+}
+.el-step__title{
+  font-size: 13px;
+}
