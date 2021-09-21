@@ -31,7 +31,7 @@
         label-position="top"
       >
         <!-- tabs区域 -->
-        <el-tabs v-model="activeStepIndex" tab-position="left">
+        <el-tabs v-model="activeStepIndex" tab-position="left" :before-leave="beforeTabLeave">
           <!-- tabs1 基本信息-->
           <el-tab-pane label="基本信息" name="0">
             <el-form-item label="商品名称" prop="goods_name">
@@ -131,6 +131,14 @@ export default {
       // 不允许选择非三级分类
       if (this.addForm.goods_cat.length !== 3) {
         this.addForm.goods_cat.length = []
+        this.$message.warning('请选择三级商品分类')
+      }
+    },
+    // Tabs切换时触发
+    beforeTabLeave (newActiveName, oldActiveName) {
+      if (oldActiveName === '0' && this.addForm.goods_cat.length !== 3) {
+        this.$message.error('请选择商品分类')
+        return false
       }
     }
   },
