@@ -68,8 +68,9 @@
               v-for="item in manyTableData"
               :key="item.attr_id"
             >
-              <el-checkbox-group v-model="item.attr_vals">
-                <!-- 在页面中点击checkbox会从manyTableData中移除vals中的对应值 -->
+              <el-checkbox-group v-model="item.attr_checked_vals">
+                <!-- 在页面中点击checkbox会移除v-model=中的数组元素 -->
+                <!-- 所以我们使用新增了一个字段item.attr_checked_vals 确保显示和存储的分开-->
                 <el-checkbox
                   size="small"
                   :label="item2"
@@ -108,7 +109,7 @@ export default {
         goods_number: 0,
         // 商品所属的分类数组
         // 注意后端接口需要的不是数组格式
-        goods_cat: []
+        goods_cat: [1, 3, 6]
       },
       addFormRules: {
         goods_name: [
@@ -185,6 +186,8 @@ export default {
         // 需要把attr_vals转成数组类型
         res.data.forEach(item => {
           item.attr_vals = item.attr_vals ? item.attr_vals.split(' ') : []
+          // 用于防止checkbox消失
+          item.attr_checked_vals = [...item.attr_vals]
         })
 
         // 保存到本地data()
