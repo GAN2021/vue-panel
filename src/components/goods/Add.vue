@@ -97,12 +97,29 @@
           </el-tab-pane>
 
           <!-- tabs4 商品图片-->
-          <el-tab-pane label="商品图片" name="3">商品图片</el-tab-pane>
+          <el-tab-pane label="商品图片" name="3">
+            <el-upload
+              :action="uploadUrl"
+              :on-preview="handlePreview"
+              :on-remove="handleRemove"
+              :on-success="handleSuccess"
+              list-type="picture"
+              :headers="headerObj"
+            >
+              <el-button size="small" type="primary">点击上传</el-button>
+              <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+            </el-upload>
+          </el-tab-pane>
           <!-- tabs5 商品内容-->
           <el-tab-pane label="商品内容" name="4">商品内容</el-tab-pane>
         </el-tabs>
       </el-form>
     </el-card>
+
+    <!-- 图片预览对话框 -->
+    <el-dialog title="图片预览" :visible.sync="previewVisible">
+      <img :src="previewPath" class="previewImg"/>
+    </el-dialog>
   </div>
 </template>
 
@@ -121,7 +138,8 @@ export default {
         goods_number: 0,
         // 商品所属的分类数组
         // 注意后端接口需要的不是数组格式
-        goods_cat: [1, 3, 6]
+        goods_cat: [1, 3, 6],
+        pics: []
       },
       addFormRules: {
         goods_name: [
@@ -153,7 +171,17 @@ export default {
       // 选择分类的动态参数
       manyTableData: [],
       // 选择分类的静态属性
-      onlyTableData: []
+      onlyTableData: [],
+      // 图片上传地址
+      uploadUrl: 'http://127.0.0.1:8888/api/private/v1/upload',
+      // 图片上传请求头
+      headerObj: {
+        Authorization: window.sessionStorage.getItem('token')
+      },
+      // 图片预览地址
+      previewPath: '',
+      // 图片预览对话框可见性
+      previewVisible: false
     }
   },
   methods: {
@@ -221,7 +249,35 @@ export default {
         this.onlyTableData = res.data
         console.log(this.onlyTableData)
       }
+    },
+    // 图片上传控件预览事件
+    handlePreview (file) {
+      console.log(file)
+      this.previewVisible = true
+      this.previewPath = file.response.data.url
+      console.log(this.previewVisible)
+      console.log(this.previewPath)
+    },
+    // 图片上传控件删除事件
+    handleRemove (file) {
+      console.log(file)
+      // 获取删除的图片的临时路径
+      const filePath = file.response.data.tmp_path
+      // 在本地提交表单数据里找到删除图片的数字索引
+      const i = this.addForm.pics.findIndex(x => x.pic === filePath)
+      // 删除这个图片
+      this.addForm.pics.splice(i, 1)
+      console.log(this.addForm)
+    },
+    // 图片上传控件成功事件
+    handleSuccess (response) {
+      console.log(response)
+      // 将图片的临时存储路径存入本地提交表单数据里
+      const picInfo = { pic: response.data.tmp_path }
+      this.addForm.pics.push(picInfo)
+      console.log(this.addForm)
     }
+
   },
   computed: {
     // 当前选中的三级分类ID
@@ -240,4 +296,11 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.el-uupload__tip {
+  position: relative;
+  left: 300px;
+}
+.previewImg{
+  width: 100%;
+}
 </style>
