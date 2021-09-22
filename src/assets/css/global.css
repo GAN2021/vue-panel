@@ -57,3 +57,6 @@ html, body, #app{
 .quill-editor{
   margin: 5px;
 }
+.el-pagination{
+  text-align: center;
+}
