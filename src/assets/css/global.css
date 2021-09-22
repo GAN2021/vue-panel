@@ -49,3 +49,11 @@ html, body, #app{
 .el-step__title{
   font-size: 13px;
 }
+
+/* 富文本编辑器样式 */
+.ql-editor{
+  min-height: 200px;
+}
+.quill-editor{
+  margin: 5px;
+}

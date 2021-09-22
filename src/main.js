@@ -6,6 +6,11 @@ import './plugins/element.js'
 import './assets/css/global.css'
 import './assets/fonts/iconfont.css'
 import TreeTable from 'vue-table-with-tree-grid'
+import VueQuillEditor from 'vue-quill-editor'
+
+import 'quill/dist/quill.core.css' // import styles
+import 'quill/dist/quill.snow.css' // for snow theme
+import 'quill/dist/quill.bubble.css' // for bubble theme
 
 import axios from 'axios'
 // 配置请求根路径
@@ -21,6 +26,9 @@ Vue.prototype.$http = axios
 Vue.config.productionTip = false
 
 Vue.component('tree-table', TreeTable)
+
+// 富文本编辑器依赖
+Vue.use(VueQuillEditor)
 
 // 日期格式化过滤器
 Vue.filter('dateFormat', function (originVal) {

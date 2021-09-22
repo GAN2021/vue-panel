@@ -110,15 +110,20 @@
               <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
             </el-upload>
           </el-tab-pane>
+
           <!-- tabs5 商品内容-->
-          <el-tab-pane label="商品内容" name="4">商品内容</el-tab-pane>
+          <el-tab-pane label="商品内容" name="4">
+            <!-- 富文本编辑器组件 -->
+            <quill-editor v-model="addForm.goods_introduce"></quill-editor>
+          </el-tab-pane>
+          <el-button type="primary" class="btnAdd">添加商品</el-button>
         </el-tabs>
       </el-form>
     </el-card>
 
     <!-- 图片预览对话框 -->
     <el-dialog title="图片预览" :visible.sync="previewVisible">
-      <img :src="previewPath" class="previewImg"/>
+      <img :src="previewPath" class="previewImg" />
     </el-dialog>
   </div>
 </template>
@@ -139,7 +144,8 @@ export default {
         // 商品所属的分类数组
         // 注意后端接口需要的不是数组格式
         goods_cat: [1, 3, 6],
-        pics: []
+        pics: [],
+        goods_introduce: ''
       },
       addFormRules: {
         goods_name: [
@@ -296,11 +302,14 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.el-uupload__tip {
-  position: relative;
-  left: 300px;
-}
-.previewImg{
+.previewImg {
   width: 100%;
+}
+.el-steps {
+  margin-bottom: 30px;
+}
+.btnAdd {
+  margin: 5px;
+  float: right;
 }
 </style>
