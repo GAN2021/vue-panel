@@ -115,8 +115,8 @@
           <el-tab-pane label="商品内容" name="4">
             <!-- 富文本编辑器组件 -->
             <quill-editor v-model="addForm.goods_introduce"></quill-editor>
+            <el-button type="primary" class="btnAdd" @click="add">添加商品</el-button>
           </el-tab-pane>
-          <el-button type="primary" class="btnAdd">添加商品</el-button>
         </el-tabs>
       </el-form>
     </el-card>
@@ -129,8 +129,16 @@
 </template>
 
 <script>
+import _ from 'lodash'
 export default {
   data () {
+    // 验证价格
+    var priceValidator = (rule, value, cb) => {
+      if (value) {
+        return cb()
+      }
+      cb(new Error('不是合法的邮箱'))
+    }
     return {
       // 激活步骤索引、tab名称
       // 赋值给steps时不转数字看起来也能工作
@@ -145,14 +153,16 @@ export default {
         // 注意后端接口需要的不是数组格式
         goods_cat: [1, 3, 6],
         pics: [],
-        goods_introduce: ''
+        goods_introduce: '',
+        attrs: []
       },
       addFormRules: {
         goods_name: [
           { required: true, message: '请输入商品名称', trigger: 'blur' }
         ],
         goods_price: [
-          { required: true, message: '请输入商品价格', trigger: 'blur' }
+          { required: true, message: '请输入商品价格', trigger: 'blur' },
+          { validator: priceValidator, message: '请输入商品价格', trigger: 'blur' }
         ],
         goods_weight: [
           { required: true, message: '请输入商品重量', trigger: 'blur' }
@@ -202,6 +212,7 @@ export default {
     },
     // 商品分类级联选择器选中值变化处理函数
     handleChange () {
+      console.log(this.addForm.goods_cat)
       // 不允许选择非三级分类
       if (this.addForm.goods_cat.length !== 3) {
         this.addForm.goods_cat.length = []
@@ -282,8 +293,62 @@ export default {
       const picInfo = { pic: response.data.tmp_path }
       this.addForm.pics.push(picInfo)
       console.log(this.addForm)
-    }
+    },
+    // 提交商品添加请求
+    add () {
+      // console.log(this.addForm.goods_cat)
+      console.log(this.addForm)
+      this.$refs.addFormRef.validate(async valid => {
+        if (!valid) {
+          return this.$message.error('请填写必要的表单项')
+        }
 
+        // 提交前数据格式处理
+        // 我们用lodash 来对表单数据进行深拷贝
+        // 这是因为addForm中的goods_cat字段，它绑定在级联选择器上
+        // 级联选择器要求他是数组格式
+        // 后端API接口要求他是逗号字符串格式
+        // 因此我们要让本地表单数据变量和待提交数据变量【分离】
+        // 这里有个古怪的问题
+        // this.addForm.goods_cat = '奇了怪了'
+
+        // 处理下goods_cat字段
+        const form = _.cloneDeep(this.addForm)
+        form.goods_cat = this.addForm.goods_cat.join(',')
+
+        // 处理下attrs字段
+        // 把动态参数填入attrs
+        this.manyTableData.forEach(element => {
+          const newInfo = {
+            attr_id: element.attr_id,
+            attr_value: element.attr_checked_vals.join(' ')
+          }
+          form.attrs.push(newInfo)
+        })
+        // 把静态属性填入attrs
+        this.onlyTableData.forEach(element => {
+          const newInfo = {
+            attr_id: element.attr_id,
+            attr_value: element.attr_vals
+          }
+          form.attrs.push(newInfo)
+        })
+
+        console.log(form.goods_cat)
+        console.log(this.manyTableData)
+        console.log(this.onlyTableData)
+
+        const { data: res } = await this.$http.post('goods', form)
+        console.log(res)
+        if (res.meta.status !== 201) {
+          this.$message.error(res.meta.msg)
+          return
+        }
+        this.$message.success('添加商品成功！')
+
+        this.$router.push('/goods')
+      })
+    }
   },
   computed: {
     // 当前选中的三级分类ID
